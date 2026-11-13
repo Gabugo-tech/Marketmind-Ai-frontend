@@ -53,7 +53,7 @@ export const NewPurchaseForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess
     <div className="space-y-5">
       <div className="relative">
         <Input placeholder="Search product to restock..." value={search}
-          onChange={(e) => setSearch(e.target.value)} leftIcon={<Search size={16} />} label="Add Products" />
+          onChange={(e) => setSearch(e.target.value)} leftIcon={<Search size={16} />} label="Add Products" autoComplete="off" />
         {search && productData?.length > 0 && (
           <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-navy-800 border border-navy-600 rounded-xl shadow-lg overflow-hidden">
             {productData.map((p: Product) => (
