@@ -12,7 +12,6 @@
     scroll-behavior: smooth;
   }
 
-  /* Dark mode (default) */
   body {
     @apply bg-navy-950 text-navy-100 font-sans antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
@@ -42,7 +41,9 @@
   html:not(.dark) .text-navy-400 { color: #64748b; }
   html:not(.dark) .text-navy-500 { color: #94a3b8; }
   html:not(.dark) .bg-navy-900\/80 { background-color: rgba(255,255,255,0.8); }
-  html:not(.dark) input, html:not(.dark) select, html:not(.dark) textarea {
+  html:not(.dark) input,
+  html:not(.dark) select,
+  html:not(.dark) textarea {
     background-color: #ffffff;
     color: #0f172a;
     border-color: #cbd5e1;
@@ -84,52 +85,6 @@
     @apply bg-gradient-to-r from-brand-400 to-blue-400 bg-clip-text text-transparent;
   }
 
-  .glass {
-    @apply bg-navy-800/60 backdrop-blur-xl border border-navy-700/60;
-  }
-}
-
-  ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-navy-900;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-navy-700 rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-navy-600;
-  }
-
-  /* Number inputs without spinners */
-  input[type='number']::-webkit-inner-spin-button,
-  input[type='number']::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-  }
-
-  /* Select dropdown */
-  select {
-    @apply cursor-pointer;
-  }
-
-  /* Focus visible for accessibility */
-  :focus-visible {
-    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-navy-950;
-  }
-}
-
-@layer components {
-  /* Gradient text utility */
-  .text-gradient {
-    @apply bg-gradient-to-r from-brand-400 to-blue-400 bg-clip-text text-transparent;
-  }
-
-  /* Glass card */
   .glass {
     @apply bg-navy-800/60 backdrop-blur-xl border border-navy-700/60;
   }
