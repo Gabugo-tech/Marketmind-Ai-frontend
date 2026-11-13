@@ -12,6 +12,10 @@ import { formatCurrency, formatDateTime } from '@/lib/utils';
 import type { Purchase } from '@/types';
 import { NewPurchaseForm } from './NewPurchaseForm';
 
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PAID: 'Paid', PARTIAL: 'Partial', PENDING: 'Pending', OVERDUE: 'Overdue',
+};
+
 export const PurchasesPage: React.FC = () => {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
@@ -76,8 +80,8 @@ export const PurchasesPage: React.FC = () => {
                       <span className="text-sm font-semibold text-white">{formatCurrency(Number(p.total))}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <Badge variant={p.paymentStatus === 'PAID' ? 'success' : p.paymentStatus === 'PENDING' ? 'warning' : 'neutral'} dot>
-                        {p.paymentStatus}
+                      <Badge variant={p.paymentStatus === 'PAID' ? 'success' : p.paymentStatus === 'PENDING' ? 'warning' : p.paymentStatus === 'OVERDUE' ? 'danger' : 'neutral'} dot>
+                        {PAYMENT_STATUS_LABELS[p.paymentStatus] ?? p.paymentStatus}
                       </Badge>
                     </td>
                   </tr>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, AlertTriangle, CheckCircle, Clock, Package } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle, Clock, Package, RefreshCw } from 'lucide-react';
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Area, ReferenceLine, Legend
@@ -54,10 +54,10 @@ const ForecastChart: React.FC<{ result: ForecastResult }> = ({ result }) => {
           {splitIndex >= 0 && (
             <ReferenceLine x={data[splitIndex]?.date} stroke="#475569" strokeDasharray="4 4" label={{ value: 'Today', fill: '#64748b', fontSize: 10 }} />
           )}
-          <Bar dataKey="actual" fill="#3b82f6" fillOpacity={0.7} name="Actual" radius={[2, 2, 0, 0]} />
-          <Line type="monotone" dataKey="predicted" stroke="#10b981" strokeWidth={2} dot={false} name="Forecast" />
+          <Bar dataKey="actual" fill="#3b82f6" fillOpacity={0.7} name="Actual Sales" radius={[2, 2, 0, 0]} />
+          <Line type="monotone" dataKey="predicted" stroke="#10b981" strokeWidth={2} dot={false} name="AI Forecast" />
           {result.forecastPoints.some((p) => p.confidenceLow) && (
-            <Area type="monotone" dataKey="confidenceHigh" fill="#10b981" fillOpacity={0.08} stroke="none" name="Confidence" />
+            <Area type="monotone" dataKey="confidenceHigh" fill="#10b981" fillOpacity={0.08} stroke="none" name="Confidence Band" />
           )}
         </ComposedChart>
       </ResponsiveContainer>
@@ -69,14 +69,13 @@ export const ForecastingPage: React.FC = () => {
   const [days, setDays] = useState<'7' | '14' | '30'>('14');
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
-  // products query kept for potential future product-selector feature
-  useQuery({
-    queryKey: ['products-list'],
-    queryFn: async () => (await api.get('/inventory/products?limit=50')).data.data,
-    enabled: false, // only load on demand
-  });
-
-  const { data: forecasts, isLoading: forecastLoading, refetch: runForecast } = useQuery<ForecastResult[]>({
+  // Fix #6: proper loading + isFetching for re-run feedback
+  const {
+    data: forecasts,
+    isLoading: forecastLoading,
+    isFetching: forecastFetching,
+    refetch: runForecast,
+  } = useQuery<ForecastResult[]>({
     queryKey: ['forecasts-all', days],
     queryFn: async () => (await api.get(`/forecasting/all?days=${days}`)).data.data,
     staleTime: 5 * 60_000,
@@ -89,7 +88,6 @@ export const ForecastingPage: React.FC = () => {
   });
 
   const selectedForecast = forecasts?.find((f) => f.productId === selectedProduct) ?? forecasts?.[0];
-
   const immediateCount = recommendations?.filter((r) => r.urgency === 'IMMEDIATE').length ?? 0;
   const soonCount = recommendations?.filter((r) => r.urgency === 'SOON').length ?? 0;
 
@@ -100,9 +98,10 @@ export const ForecastingPage: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             AI Sales Forecasting
-            <span className="text-xs font-normal text-navy-400">(Holt's Exponential Smoothing + Moving Average)</span>
           </h2>
-          <p className="text-sm text-navy-400 mt-0.5">Demand predictions based on your actual sales history</p>
+          <p className="text-sm text-navy-400 mt-0.5">
+            Demand predictions using Holt's Exponential Smoothing on your actual sales history
+          </p>
         </div>
         <div className="flex gap-2 items-center">
           <Select
@@ -111,13 +110,20 @@ export const ForecastingPage: React.FC = () => {
             options={FORECAST_DAYS}
             className="w-36"
           />
-          <Button size="sm" variant="secondary" onClick={() => runForecast()}>
-            Re-run
+          {/* Fix #6: shows spinner when re-running */}
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => runForecast()}
+            loading={forecastFetching}
+            icon={!forecastFetching ? <RefreshCw size={14} /> : undefined}
+          >
+            {forecastFetching ? 'Running...' : 'Re-run'}
           </Button>
         </div>
       </div>
 
-      {/* Restock alert strip */}
+      {/* Alert strip */}
       {immediateCount > 0 && (
         <div className="flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
           <AlertTriangle size={18} className="text-red-400 shrink-0" />
@@ -140,10 +146,11 @@ export const ForecastingPage: React.FC = () => {
                     Accuracy: <span className="text-brand-400">{(100 - (selectedForecast.mape ?? 0)).toFixed(0)}%</span>
                   </span>
                 )}
+                {/* Fix #7: styled select consistent with UI */}
                 <select
                   value={selectedProduct ?? ''}
                   onChange={(e) => setSelectedProduct(e.target.value || null)}
-                  className="text-xs bg-navy-700 border border-navy-600 text-navy-200 rounded-lg px-2 py-1 focus:outline-none max-w-40"
+                  className="text-xs bg-navy-700 border border-navy-600 text-navy-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-brand-500 max-w-44 cursor-pointer"
                 >
                   {forecasts?.map((f) => (
                     <option key={f.productId} value={f.productId}>{f.productName}</option>
@@ -154,9 +161,12 @@ export const ForecastingPage: React.FC = () => {
           </CardHeader>
 
           {forecastLoading ? (
-            <LoadingSpinner className="py-16" />
+            <div className="py-16 flex flex-col items-center gap-3">
+              <LoadingSpinner size="lg" />
+              <p className="text-xs text-navy-400">Analysing your sales history...</p>
+            </div>
           ) : !selectedForecast ? (
-            <EmptyState icon={<TrendingUp size={24} />} title="No forecast data" description="Run forecast to see predictions" />
+            <EmptyState icon={<TrendingUp size={24} />} title="No forecast data" description="Add products and record sales to generate forecasts" />
           ) : (
             <>
               {selectedForecast.insufficientData && (
@@ -195,18 +205,19 @@ export const ForecastingPage: React.FC = () => {
             <CardTitle>Restock Intelligence</CardTitle>
             <span className="text-xs text-navy-400">{recommendations?.length ?? 0} products</span>
           </CardHeader>
-
           {restockLoading ? (
             <LoadingSpinner className="py-8" />
           ) : !recommendations?.length ? (
-            <EmptyState icon={<Package size={20} />} title="No data yet" />
+            <EmptyState icon={<Package size={20} />} title="No data yet" description="Add products to see recommendations" />
           ) : (
             <div className="space-y-2.5 max-h-96 overflow-y-auto">
-              {recommendations.filter((r) => r.urgency !== 'SUFFICIENT').map((r) => (
-                <div
-                  key={r.productId}
-                  className={cn('p-3 rounded-xl border cursor-pointer hover:opacity-90 transition-opacity', getUrgencyColor(r.urgency))}
-                >
+              {recommendations.filter((r) => r.urgency !== 'SUFFICIENT').length === 0 ? (
+                <div className="flex items-center gap-2 p-3 bg-brand-500/10 border border-brand-500/20 rounded-xl">
+                  <CheckCircle size={16} className="text-brand-400" />
+                  <p className="text-xs text-brand-300 font-medium">All stock levels are sufficient!</p>
+                </div>
+              ) : recommendations.filter((r) => r.urgency !== 'SUFFICIENT').map((r) => (
+                <div key={r.productId} className={cn('p-3 rounded-xl border', getUrgencyColor(r.urgency))}>
                   <div className="flex items-start gap-2">
                     {URGENCY_ICONS[r.urgency]}
                     <div className="flex-1 min-w-0">
@@ -228,14 +239,10 @@ export const ForecastingPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Full restock recommendations table */}
+      {/* Full table */}
       <Card padding="md">
-        <CardHeader>
-          <CardTitle>All Restocking Recommendations</CardTitle>
-        </CardHeader>
-        {restockLoading ? (
-          <LoadingSpinner className="py-8" />
-        ) : (
+        <CardHeader><CardTitle>All Restocking Recommendations</CardTitle></CardHeader>
+        {restockLoading ? <LoadingSpinner className="py-8" /> : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -246,7 +253,9 @@ export const ForecastingPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-navy-700/50">
-                {recommendations?.map((r) => (
+                {!recommendations?.length ? (
+                  <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-navy-500">No products found. Add inventory to see recommendations.</td></tr>
+                ) : recommendations.map((r) => (
                   <tr key={r.productId} className="hover:bg-navy-700/30 transition-colors">
                     <td className="px-4 py-3">
                       <p className="text-sm font-medium text-white">{r.productName}</p>
@@ -263,15 +272,10 @@ export const ForecastingPage: React.FC = () => {
                         {r.daysUntilStockout !== null ? `${r.daysUntilStockout}d` : '—'}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm font-semibold text-brand-400">{r.recommendedQuantity}</span>
-                    </td>
+                    <td className="px-4 py-3"><span className="text-sm font-semibold text-brand-400">{r.recommendedQuantity}</span></td>
                     <td className="px-4 py-3 text-sm text-navy-300">{formatCurrency(r.estimatedCost)}</td>
                     <td className="px-4 py-3">
-                      <Badge
-                        variant={r.urgency === 'IMMEDIATE' ? 'danger' : r.urgency === 'SOON' ? 'warning' : 'success'}
-                        dot
-                      >
+                      <Badge variant={r.urgency === 'IMMEDIATE' ? 'danger' : r.urgency === 'SOON' ? 'warning' : 'success'} dot>
                         {r.urgency === 'IMMEDIATE' ? 'Now' : r.urgency === 'SOON' ? 'Soon' : 'OK'}
                       </Badge>
                     </td>

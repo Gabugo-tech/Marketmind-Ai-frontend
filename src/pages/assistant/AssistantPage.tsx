@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Send, Bot, User, Sparkles, TrendingUp, Package, DollarSign, BarChart3, Zap } from 'lucide-react';
+import { Send, Bot, User, Sparkles, TrendingUp, Package, DollarSign, BarChart3, Zap, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { formatRelative } from '@/lib/utils';
@@ -27,6 +27,13 @@ export const AssistantPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Fix #8: clear chat
+  const handleNewChat = () => {
+    setMessages([]);
+    setConversationId(null);
+    setInput('');
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -94,7 +101,7 @@ export const AssistantPage: React.FC = () => {
         <div className="w-10 h-10 bg-brand-500/20 rounded-xl flex items-center justify-center">
           <Bot size={20} className="text-brand-400" />
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
             MarketMind AI Assistant
             <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 bg-brand-500/20 text-brand-400 rounded-full">
@@ -103,6 +110,15 @@ export const AssistantPage: React.FC = () => {
           </h2>
           <p className="text-xs text-navy-400">Ask anything about your business — inventory, sales, profit, trends</p>
         </div>
+        {/* Fix #8: New chat button */}
+        {messages.length > 0 && (
+          <button
+            onClick={handleNewChat}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-navy-300 hover:text-white bg-navy-700 hover:bg-navy-600 rounded-lg transition-colors"
+          >
+            <Plus size={13} /> New Chat
+          </button>
+        )}
       </div>
 
       {/* Messages */}

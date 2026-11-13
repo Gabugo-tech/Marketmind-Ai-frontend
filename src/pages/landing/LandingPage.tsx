@@ -153,6 +153,7 @@ export const LandingPage: React.FC = () => {
               </div>
             ))}
           </div>
+          <p className="text-[11px] text-navy-600 text-center mt-4">* Projected figures based on platform capabilities and pilot user data.</p>
         </div>
       </section>
 

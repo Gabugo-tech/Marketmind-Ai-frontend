@@ -132,6 +132,12 @@ export const RegisterPage: React.FC = () => {
           Already have an account?{' '}
           <Link to="/login" className="text-brand-400 hover:text-brand-300 font-medium">Sign in</Link>
         </p>
+        {/* Fix #9: back to homepage */}
+        <p className="text-center mt-2">
+          <Link to="/" className="text-xs text-navy-500 hover:text-navy-300 transition-colors">
+            ← Back to homepage
+          </Link>
+        </p>
       </div>
     </div>
   );

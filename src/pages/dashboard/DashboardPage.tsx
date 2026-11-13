@@ -1,5 +1,5 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   TrendingUp, Package, AlertTriangle, ShoppingCart,
@@ -13,9 +13,11 @@ import { StatCard } from '@/components/ui/StatCard';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { LoadingSpinner, EmptyState } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/auth.store';
 import { formatCurrency, formatDate, getStockStatusLabel } from '@/lib/utils';
+import { NewSaleForm } from '@/pages/sales/NewSaleForm';
 import type { DashboardStats, Product } from '@/types';
 
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string }[]; label?: string }) => {
@@ -36,6 +38,8 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 export const DashboardPage: React.FC = () => {
   const { user, currentBusiness } = useAuthStore();
   const business = currentBusiness();
+  const qc = useQueryClient();
+  const [showSaleModal, setShowSaleModal] = useState(false);
 
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['dashboard-stats'],
@@ -53,9 +57,15 @@ export const DashboardPage: React.FC = () => {
     queryFn: async () => (await api.get('/analytics/top-products?limit=5')).data.data,
   });
 
-  const { data: lowStockProducts } = useQuery<Product[]>({
-    queryKey: ['low-stock-products'],
-    queryFn: async () => (await api.get('/inventory/products?status=low_stock&limit=5')).data.data,
+  // Fix #2: only fetch products that need attention (not in stock)
+  const { data: alertProducts } = useQuery<Product[]>({
+    queryKey: ['alert-products'],
+    queryFn: async () => (await api.get('/inventory/products?limit=20')).data.data,
+    select: (data: Product[]) => data.filter(p =>
+      p.stockStatus === 'OUT_OF_STOCK' ||
+      p.stockStatus === 'CRITICAL_STOCK' ||
+      p.stockStatus === 'LOW_STOCK'
+    ),
   });
 
   const { data: recentSales } = useQuery({
@@ -70,6 +80,12 @@ export const DashboardPage: React.FC = () => {
     return 'Good evening';
   };
 
+  const STOCK_BADGE: Record<string, 'danger' | 'warning'> = {
+    OUT_OF_STOCK: 'danger',
+    CRITICAL_STOCK: 'danger',
+    LOW_STOCK: 'warning',
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -82,44 +98,18 @@ export const DashboardPage: React.FC = () => {
             {business?.name} · {new Date().toLocaleDateString('en-NG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        <Link to="/sales">
-          <Button size="sm" icon={<ShoppingCart size={15} />}>Record Sale</Button>
-        </Link>
+        {/* Fix #1: opens modal directly */}
+        <Button size="sm" icon={<ShoppingCart size={15} />} onClick={() => setShowSaleModal(true)}>
+          Record Sale
+        </Button>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Today's Sales"
-          value={formatCurrency(stats?.salesToday ?? 0)}
-          subtitle={`${stats?.transactionsToday ?? 0} transactions`}
-          icon={<DollarSign size={18} />}
-          loading={statsLoading}
-        />
-        <StatCard
-          title="Today's Profit"
-          value={formatCurrency(stats?.profitToday ?? 0)}
-          subtitle="Gross profit"
-          icon={<TrendingUp size={18} />}
-          iconBg="bg-blue-500/15"
-          loading={statsLoading}
-        />
-        <StatCard
-          title="This Month"
-          value={formatCurrency(stats?.salesThisMonth ?? 0)}
-          subtitle={formatCurrency(stats?.profitThisMonth ?? 0) + ' profit'}
-          icon={<BarChart2 size={18} />}
-          iconBg="bg-purple-500/15"
-          loading={statsLoading}
-        />
-        <StatCard
-          title="Inventory Value"
-          value={formatCurrency(stats?.totalInventoryValue ?? 0)}
-          subtitle={`${stats?.totalProducts ?? 0} products`}
-          icon={<Boxes size={18} />}
-          iconBg="bg-amber-500/15"
-          loading={statsLoading}
-        />
+        <StatCard title="Today's Sales" value={formatCurrency(stats?.salesToday ?? 0)} subtitle={`${stats?.transactionsToday ?? 0} transactions`} icon={<DollarSign size={18} />} loading={statsLoading} />
+        <StatCard title="Today's Profit" value={formatCurrency(stats?.profitToday ?? 0)} subtitle="Gross profit" icon={<TrendingUp size={18} />} iconBg="bg-blue-500/15" loading={statsLoading} />
+        <StatCard title="This Month" value={formatCurrency(stats?.salesThisMonth ?? 0)} subtitle={formatCurrency(stats?.profitThisMonth ?? 0) + ' profit'} icon={<BarChart2 size={18} />} iconBg="bg-purple-500/15" loading={statsLoading} />
+        <StatCard title="Inventory Value" value={formatCurrency(stats?.totalInventoryValue ?? 0)} subtitle={`${stats?.totalProducts ?? 0} products`} icon={<Boxes size={18} />} iconBg="bg-amber-500/15" loading={statsLoading} />
       </div>
 
       {/* Alert strip */}
@@ -128,18 +118,14 @@ export const DashboardPage: React.FC = () => {
           <AlertTriangle size={18} className="text-red-400 shrink-0" />
           <p className="text-sm text-red-300 flex-1">
             <span className="font-semibold">{stats!.outOfStockCount} products out of stock</span>
-            {stats!.criticalStockCount > 0 && `, ${stats!.criticalStockCount} critically low`}
-            . Restock needed.
+            {stats!.criticalStockCount > 0 && `, ${stats!.criticalStockCount} critically low`}. Restock needed.
           </p>
-          <Link to="/forecasting">
-            <Button size="xs" variant="danger">View →</Button>
-          </Link>
+          <Link to="/forecasting"><Button size="xs" variant="danger">View →</Button></Link>
         </div>
       )}
 
       {/* Charts row */}
       <div className="grid lg:grid-cols-3 gap-5">
-        {/* Sales trend */}
         <Card className="lg:col-span-2" padding="md">
           <CardHeader>
             <CardTitle>Sales Trend — Last 30 Days</CardTitle>
@@ -168,59 +154,58 @@ export const DashboardPage: React.FC = () => {
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center">
-                <LoadingSpinner />
-              </div>
+              <div className="h-full flex items-center justify-center"><LoadingSpinner /></div>
             )}
           </div>
         </Card>
 
-        {/* Top products */}
         <Card padding="md">
           <CardHeader>
             <CardTitle>Top Products</CardTitle>
             <Link to="/analytics" className="text-xs text-brand-400 hover:text-brand-300">See all →</Link>
           </CardHeader>
           <div className="space-y-3">
-            {topProducts?.slice(0, 5).map((p: { productId: string; productName: string; totalRevenue: number; totalQuantity: number }, i: number) => (
+            {topProducts?.length > 0 ? topProducts.slice(0, 5).map((p: { productId: string; productName: string; totalRevenue: number; totalQuantity: number }, i: number) => (
               <div key={p.productId} className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold text-navy-300">
-                  {i + 1}
-                </div>
+                <div className="w-6 h-6 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold text-navy-300">{i + 1}</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-white truncate">{p.productName}</p>
                   <p className="text-[10px] text-navy-400">{p.totalQuantity} units sold</p>
                 </div>
-                <span className="text-xs font-semibold text-brand-400">{formatCurrency(p.totalRevenue)}</span>
+                {/* Fix #12: show ₦0 only when no sales yet with explanation */}
+                <span className="text-xs font-semibold text-brand-400">
+                  {p.totalRevenue > 0 ? formatCurrency(p.totalRevenue) : <span className="text-navy-500">No sales yet</span>}
+                </span>
               </div>
-            )) ?? <LoadingSpinner className="py-6" />}
+            )) : (
+              !topProducts ? <LoadingSpinner className="py-6" /> :
+              <p className="text-xs text-navy-500 text-center py-4">Record sales to see top products</p>
+            )}
           </div>
         </Card>
       </div>
 
       {/* Bottom row */}
       <div className="grid lg:grid-cols-2 gap-5">
-        {/* Low stock */}
+        {/* Fix #2: only show problem stock */}
         <Card padding="md">
           <CardHeader>
             <CardTitle>Stock Alerts</CardTitle>
             <Link to="/inventory" className="text-xs text-brand-400 hover:text-brand-300">Manage →</Link>
           </CardHeader>
-          {!lowStockProducts ? (
+          {!alertProducts ? (
             <LoadingSpinner className="py-6" />
-          ) : lowStockProducts.length === 0 ? (
-            <EmptyState icon={<Package size={20} />} title="All stock levels healthy" />
+          ) : alertProducts.length === 0 ? (
+            <EmptyState icon={<Package size={20} />} title="All stock levels healthy" description="No products need attention right now" />
           ) : (
             <div className="space-y-2">
-              {lowStockProducts.map((p) => (
+              {alertProducts.map((p) => (
                 <div key={p.id} className="flex items-center gap-3 p-2.5 bg-navy-700/50 rounded-lg">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-white truncate">{p.name}</p>
                     <p className="text-[10px] text-navy-400">{p.quantity} units remaining</p>
                   </div>
-                  <Badge
-                    variant={p.stockStatus === 'OUT_OF_STOCK' ? 'danger' : p.stockStatus === 'CRITICAL_STOCK' ? 'danger' : 'warning'}
-                  >
+                  <Badge variant={STOCK_BADGE[p.stockStatus] ?? 'warning'}>
                     {getStockStatusLabel(p.stockStatus)}
                   </Badge>
                 </div>
@@ -229,7 +214,6 @@ export const DashboardPage: React.FC = () => {
           )}
         </Card>
 
-        {/* Recent sales */}
         <Card padding="md">
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
@@ -238,11 +222,12 @@ export const DashboardPage: React.FC = () => {
           {!recentSales ? (
             <LoadingSpinner className="py-6" />
           ) : recentSales.length === 0 ? (
-            <EmptyState icon={<ShoppingCart size={20} />} title="No transactions yet" description="Record your first sale to get started" />
+            <EmptyState icon={<ShoppingCart size={20} />} title="No transactions yet" description="Record your first sale to get started"
+              action={<Button size="sm" icon={<ShoppingCart size={14} />} onClick={() => setShowSaleModal(true)}>Record Sale</Button>} />
           ) : (
             <div className="space-y-2">
-              {recentSales.map((s: { id: string; referenceNumber: string; soldAt: string; total: number; grossProfit: number; paymentMethod: string }) => (
-                <Link key={s.id} to="/sales" className="flex items-center gap-3 p-2.5 bg-navy-700/50 hover:bg-navy-700 rounded-lg transition-colors">
+              {recentSales.map((s: { id: string; referenceNumber: string; soldAt: string; total: number; grossProfit: number }) => (
+                <div key={s.id} className="flex items-center gap-3 p-2.5 bg-navy-700/50 rounded-lg">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-white">{s.referenceNumber}</p>
                     <p className="text-[10px] text-navy-400">{formatDate(s.soldAt, 'dd MMM, hh:mm a')}</p>
@@ -251,12 +236,24 @@ export const DashboardPage: React.FC = () => {
                     <p className="text-xs font-semibold text-white">{formatCurrency(Number(s.total))}</p>
                     <p className="text-[10px] text-brand-400">+{formatCurrency(Number(s.grossProfit))}</p>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
         </Card>
       </div>
+
+      {/* Fix #1: Sale modal directly from dashboard */}
+      <Modal open={showSaleModal} onClose={() => setShowSaleModal(false)} title="Record New Sale" size="xl">
+        <NewSaleForm onSuccess={() => {
+          setShowSaleModal(false);
+          qc.invalidateQueries({ queryKey: ['dashboard-stats'] });
+          qc.invalidateQueries({ queryKey: ['sales'] });
+          qc.invalidateQueries({ queryKey: ['alert-products'] });
+          qc.invalidateQueries({ queryKey: ['top-products'] });
+          qc.invalidateQueries({ queryKey: ['sales-trend'] });
+        }} />
+      </Modal>
     </div>
   );
 };

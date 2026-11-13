@@ -34,7 +34,12 @@ export const NotificationsPage: React.FC = () => {
 
   const markReadMutation = useMutation({
     mutationFn: (ids: string[] | 'all') => api.post('/notifications/mark-read', { ids }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['notifications'] }); toast.success('Marked as read'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['notifications'] });
+      qc.invalidateQueries({ queryKey: ['notifications-count'] });
+      toast.success('Marked as read');
+    },
+    onError: () => toast.error('Failed to update'),
   });
 
   const notifications: Notification[] = data?.notifications ?? [];
@@ -54,7 +59,8 @@ export const NotificationsPage: React.FC = () => {
         </div>
         {unreadCount > 0 && (
           <Button size="sm" variant="secondary" icon={<CheckCheck size={15} />}
-            onClick={() => markReadMutation.mutate('all')} loading={markReadMutation.isPending}>
+            onClick={() => markReadMutation.mutate('all')}
+            loading={markReadMutation.isPending}>
             Mark all read
           </Button>
         )}
@@ -90,7 +96,8 @@ export const NotificationsPage: React.FC = () => {
                 {!n.isRead && (
                   <button
                     onClick={() => markReadMutation.mutate([n.id])}
-                    className="shrink-0 p-1 text-navy-500 hover:text-brand-400 transition-colors"
+                    disabled={markReadMutation.isPending}
+                    className="shrink-0 p-1 text-navy-500 hover:text-brand-400 disabled:opacity-40 transition-colors"
                     title="Mark as read"
                   >
                     <CheckCircle size={16} />

@@ -70,9 +70,9 @@ export const SalesPage: React.FC = () => {
         ) : sales.length === 0 ? (
           <EmptyState
             icon={<ShoppingCart size={28} />}
-            title="No sales recorded"
-            description="Record your first sale to start tracking performance"
-            action={<Button icon={<Plus size={16} />} onClick={() => setShowNewSale(true)}>Record Sale</Button>}
+            title={search || paymentFilter ? 'No sales match your filters' : 'No sales recorded'}
+            description={search || paymentFilter ? 'Try clearing your filters' : 'Record your first sale to start tracking performance'}
+            action={!search && !paymentFilter ? <Button icon={<Plus size={16} />} onClick={() => setShowNewSale(true)}>Record Sale</Button> : undefined}
           />
         ) : (
           <div className="overflow-x-auto">

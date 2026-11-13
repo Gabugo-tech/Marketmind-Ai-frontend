@@ -97,9 +97,9 @@ export const InventoryPage: React.FC = () => {
         ) : products.length === 0 ? (
           <EmptyState
             icon={<Package size={28} />}
-            title="No products found"
-            description={search ? 'Try a different search term' : 'Add your first product to get started'}
-            action={!search ? <Button icon={<Plus size={16} />} onClick={() => setShowAddModal(true)}>Add Product</Button> : undefined}
+            title={search || statusFilter ? 'No products match your filters' : 'No products found'}
+            description={search || statusFilter ? 'Try clearing your search or filter' : 'Add your first product to get started'}
+            action={!search && !statusFilter ? <Button icon={<Plus size={16} />} onClick={() => setShowAddModal(true)}>Add Product</Button> : undefined}
           />
         ) : (
           <div className="overflow-x-auto">

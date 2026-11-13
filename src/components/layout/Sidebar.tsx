@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 import { useThemeStore } from '@/store/theme.store';
@@ -196,14 +196,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
   );
 };
 
-export const TopBar: React.FC<{ onMenuClick: () => void; title: string }> = ({ onMenuClick, title }) => (
-  <header className="sticky top-0 z-30 bg-navy-900/80 backdrop-blur-xl border-b border-navy-700 px-4 lg:px-6 py-3.5 flex items-center gap-3">
-    <button
-      onClick={onMenuClick}
-      className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors lg:hidden"
-    >
-      <Menu size={20} />
-    </button>
-    <h1 className="text-base font-semibold text-white">{title}</h1>
-  </header>
-);
+export const TopBar: React.FC<{ onMenuClick: () => void; title: string }> = ({ onMenuClick, title }) => {
+  const unreadCount = useNotifications();
+  return (
+    <header className="sticky top-0 z-30 bg-navy-900/80 backdrop-blur-xl border-b border-navy-700 px-4 lg:px-6 py-3.5 flex items-center gap-3">
+      <button
+        onClick={onMenuClick}
+        className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors lg:hidden"
+      >
+        <Menu size={20} />
+      </button>
+      <h1 className="text-base font-semibold text-white flex-1">{title}</h1>
+      {/* Fix #15: notification bell with unread badge */}
+      <Link to="/notifications" className="relative p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors">
+        <Bell size={18} />
+        {(unreadCount.data ?? 0) > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+            {(unreadCount.data ?? 0) > 9 ? '9+' : unreadCount.data}
+          </span>
+        )}
+      </Link>
+    </header>
+  );
+};
