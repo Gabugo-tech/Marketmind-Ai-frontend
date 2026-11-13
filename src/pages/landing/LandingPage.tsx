@@ -139,7 +139,7 @@ export const LandingPage: React.FC = () => {
               Start for Free <ArrowRight size={18} />
             </Link>
             <Link to="/login" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-navy-700 text-white font-semibold px-8 py-4 rounded-xl transition-all text-base">
-              Sign in to dashboard
+              Sign in
             </Link>
           </div>
 
