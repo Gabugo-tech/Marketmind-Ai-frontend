@@ -5,6 +5,15 @@ import { Toaster } from 'react-hot-toast';
 import App from './App';
 import './index.css';
 
+// Apply saved theme on startup — default to dark
+const savedTheme = localStorage.getItem('marketmind-theme');
+const isDark = savedTheme ? JSON.parse(savedTheme)?.state?.isDark !== false : true;
+if (isDark) {
+  document.documentElement.classList.add('dark');
+} else {
+  document.documentElement.classList.remove('dark');
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
