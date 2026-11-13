@@ -15,10 +15,6 @@ export const LoginPage: React.FC = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleDemoLogin = () => {
-    setForm({ email: 'demo@marketmind.ai', password: 'Demo1234!' });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -96,16 +92,7 @@ export const LoginPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
           <p className="text-navy-400 text-sm mb-8">Sign in to manage your business</p>
 
-          {/* Demo banner */}
-          <div className="mb-6 p-3 bg-brand-500/10 border border-brand-500/20 rounded-xl flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-brand-400">🎯 Hackathon Demo</p>
-              <p className="text-xs text-navy-300 mt-0.5">Try with our pre-loaded sample business</p>
-            </div>
-            <Button size="xs" variant="secondary" onClick={handleDemoLogin}>
-              Use Demo
-            </Button>
-          </div>
+          {/* Demo banner removed */}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
