@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
+import { useThemeStore } from '@/store/theme.store';
 import {
   LayoutDashboard, Package, ShoppingCart, TruckIcon, BarChart3,
-  TrendingUp, Bot, Bell, LogOut, Menu, X, Zap, ChevronRight, Store
+  TrendingUp, Bot, Bell, LogOut, Menu, X, Zap, ChevronRight, Store, Sun, Moon
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 
@@ -26,9 +27,20 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
   const { user, logout, currentBusiness } = useAuthStore();
+  const { isDark, toggle } = useThemeStore();
   const business = currentBusiness();
   const location = useLocation();
   const unreadCount = useNotifications();
+  const [showSignoutWarning, setShowSignoutWarning] = useState(false);
+
+  // Apply theme on mount
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
 
   const handleLogout = () => {
     logout();
@@ -77,7 +89,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
           <span className="text-sm font-bold text-white">MarketMind</span>
           <span className="text-brand-400 text-sm font-bold"> AI</span>
         </div>
-        <button onClick={onClose} className="ml-auto lg:hidden text-navy-400 hover:text-white">
+        {/* Theme toggle */}
+        <button
+          onClick={toggle}
+          className="ml-auto p-1.5 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors"
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+        <button onClick={onClose} className="lg:hidden text-navy-400 hover:text-white">
           <X size={20} />
         </button>
       </div>
@@ -114,13 +134,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
           </div>
         </div>
         <button
-          onClick={handleLogout}
+          onClick={() => setShowSignoutWarning(true)}
           className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-navy-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
         >
           <LogOut size={16} />
           Sign out
         </button>
       </div>
+
+      {/* Signout warning modal */}
+      {showSignoutWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSignoutWarning(false)} />
+          <div className="relative bg-navy-800 border border-navy-700 rounded-2xl p-6 w-full max-w-sm shadow-card-lg animate-slide-up">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-500/15 rounded-xl flex items-center justify-center">
+                <LogOut size={18} className="text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Sign out?</h3>
+                <p className="text-xs text-navy-400">You'll need to log back in to access your business</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSignoutWarning(false)}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-navy-200 bg-navy-700 hover:bg-navy-600 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors"
+              >
+                Yes, sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 

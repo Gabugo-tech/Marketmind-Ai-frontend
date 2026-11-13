@@ -12,10 +12,82 @@
     scroll-behavior: smooth;
   }
 
+  /* Dark mode (default) */
   body {
     @apply bg-navy-950 text-navy-100 font-sans antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
+
+  /* Light mode overrides */
+  html:not(.dark) body {
+    @apply bg-gray-50 text-gray-900;
+  }
+
+  html:not(.dark) aside {
+    @apply bg-white border-gray-200;
+  }
+
+  html:not(.dark) .bg-navy-950 { background-color: #f8fafc; }
+  html:not(.dark) .bg-navy-900 { background-color: #ffffff; }
+  html:not(.dark) .bg-navy-800 { background-color: #f1f5f9; }
+  html:not(.dark) .bg-navy-700 { background-color: #e2e8f0; }
+  html:not(.dark) .bg-navy-700\/50 { background-color: rgba(226,232,240,0.5); }
+  html:not(.dark) .bg-navy-700\/30 { background-color: rgba(226,232,240,0.3); }
+  html:not(.dark) .border-navy-700 { border-color: #cbd5e1; }
+  html:not(.dark) .border-navy-600 { border-color: #94a3b8; }
+  html:not(.dark) .text-white { color: #0f172a; }
+  html:not(.dark) .text-navy-100 { color: #1e293b; }
+  html:not(.dark) .text-navy-200 { color: #334155; }
+  html:not(.dark) .text-navy-300 { color: #475569; }
+  html:not(.dark) .text-navy-400 { color: #64748b; }
+  html:not(.dark) .text-navy-500 { color: #94a3b8; }
+  html:not(.dark) .bg-navy-900\/80 { background-color: rgba(255,255,255,0.8); }
+  html:not(.dark) input, html:not(.dark) select, html:not(.dark) textarea {
+    background-color: #ffffff;
+    color: #0f172a;
+    border-color: #cbd5e1;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-navy-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-navy-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-navy-600;
+  }
+
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  select {
+    @apply cursor-pointer;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-navy-950;
+  }
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-400 to-blue-400 bg-clip-text text-transparent;
+  }
+
+  .glass {
+    @apply bg-navy-800/60 backdrop-blur-xl border border-navy-700/60;
+  }
+}
 
   ::-webkit-scrollbar {
     width: 5px;
