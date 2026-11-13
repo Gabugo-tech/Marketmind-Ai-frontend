@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input, Select, Textarea } from '@/components/ui/Input';
@@ -12,7 +13,9 @@ interface ProductFormProps {
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess }) => {
+  const qc = useQueryClient();
   const isEdit = !!product;
+
   const [form, setForm] = useState({
     name: product?.name ?? '',
     description: product?.description ?? '',
@@ -26,14 +29,50 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess }) 
     unit: product?.unit ?? 'unit',
   });
 
-  const { data: categories } = useQuery({
+  // Inline add category state
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
+  // Inline add supplier state
+  const [showAddSupplier, setShowAddSupplier] = useState(false);
+  const [newSupplierName, setNewSupplierName] = useState('');
+
+  const { data: categories, isLoading: catLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => (await api.get('/inventory/categories')).data.data,
+    staleTime: 60_000,
   });
 
-  const { data: suppliers } = useQuery({
+  const { data: suppliers, isLoading: supLoading } = useQuery({
     queryKey: ['suppliers'],
     queryFn: async () => (await api.get('/inventory/suppliers')).data.data,
+    staleTime: 60_000,
+  });
+
+  // Add category mutation
+  const addCategoryMutation = useMutation({
+    mutationFn: (name: string) => api.post('/inventory/categories', { name }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['categories'] });
+      setForm((f) => ({ ...f, categoryId: res.data.data.id }));
+      setNewCategoryName('');
+      setShowAddCategory(false);
+      toast.success('Category added');
+    },
+    onError: () => toast.error('Failed to add category'),
+  });
+
+  // Add supplier mutation
+  const addSupplierMutation = useMutation({
+    mutationFn: (name: string) => api.post('/inventory/suppliers', { name }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['suppliers'] });
+      setForm((f) => ({ ...f, supplierId: res.data.data.id }));
+      setNewSupplierName('');
+      setShowAddSupplier(false);
+      toast.success('Supplier added');
+    },
+    onError: () => toast.error('Failed to add supplier'),
   });
 
   const mutation = useMutation({
@@ -75,22 +114,81 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess }) 
 
       <Textarea label="Description (optional)" value={form.description} onChange={set('description')} rows={2} placeholder="Brief product description..." />
 
-      <div className="grid sm:grid-cols-2 gap-4">
+      {/* Category */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-navy-200">Category</label>
+          <button
+            type="button"
+            onClick={() => setShowAddCategory(!showAddCategory)}
+            className="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1"
+          >
+            <Plus size={12} /> Add new
+          </button>
+        </div>
+        {showAddCategory && (
+          <div className="flex gap-2">
+            <Input
+              placeholder="Category name e.g. Electronics"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              size="sm"
+              loading={addCategoryMutation.isPending}
+              onClick={() => newCategoryName.trim() && addCategoryMutation.mutate(newCategoryName.trim())}
+            >
+              Add
+            </Button>
+          </div>
+        )}
         <Select
-          label="Category"
           value={form.categoryId}
           onChange={set('categoryId')}
           options={[
-            { value: '', label: 'No category' },
+            { value: '', label: catLoading ? 'Loading...' : 'No category' },
             ...(categories?.map((c: { id: string; name: string }) => ({ value: c.id, label: c.name })) ?? []),
           ]}
         />
+      </div>
+
+      {/* Supplier */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-navy-200">Supplier</label>
+          <button
+            type="button"
+            onClick={() => setShowAddSupplier(!showAddSupplier)}
+            className="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1"
+          >
+            <Plus size={12} /> Add new
+          </button>
+        </div>
+        {showAddSupplier && (
+          <div className="flex gap-2">
+            <Input
+              placeholder="Supplier name e.g. Lagos Tech Wholesale"
+              value={newSupplierName}
+              onChange={(e) => setNewSupplierName(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              size="sm"
+              loading={addSupplierMutation.isPending}
+              onClick={() => newSupplierName.trim() && addSupplierMutation.mutate(newSupplierName.trim())}
+            >
+              Add
+            </Button>
+          </div>
+        )}
         <Select
-          label="Supplier"
           value={form.supplierId}
           onChange={set('supplierId')}
           options={[
-            { value: '', label: 'No supplier' },
+            { value: '', label: supLoading ? 'Loading...' : 'No supplier' },
             ...(suppliers?.map((s: { id: string; name: string }) => ({ value: s.id, label: s.name })) ?? []),
           ]}
         />
@@ -132,11 +230,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess }) 
         <Input label="Minimum Stock Level (Restock Alert)" type="number" value={form.minStockLevel} onChange={set('minStockLevel')} min="0" />
       )}
 
-      <div className="flex gap-3 pt-2">
-        <Button type="submit" loading={mutation.isPending} className="flex-1">
-          {isEdit ? 'Update Product' : 'Add Product'}
-        </Button>
-      </div>
+      <Button type="submit" loading={mutation.isPending} className="w-full">
+        {isEdit ? 'Update Product' : 'Add Product'}
+      </Button>
     </form>
   );
 };
