@@ -5,9 +5,10 @@ import { useAuthStore } from '@/store/auth.store';
 import { useThemeStore } from '@/store/theme.store';
 import {
   LayoutDashboard, Package, ShoppingCart, TruckIcon, BarChart3,
-  TrendingUp, Bot, Bell, LogOut, Menu, X, Zap, ChevronRight, Store, Sun, Moon
+  TrendingUp, Bot, Bell, LogOut, Menu, X, Zap, ChevronRight, Store, Sun, Moon, Download
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -198,6 +199,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
 
 export const TopBar: React.FC<{ onMenuClick: () => void; title: string }> = ({ onMenuClick, title }) => {
   const unreadCount = useNotifications();
+  const { isInstallable, install } = usePWAInstall();
   return (
     <header className="sticky top-0 z-30 bg-navy-900/80 backdrop-blur-xl border-b border-navy-700 px-4 lg:px-6 py-3.5 flex items-center gap-3">
       <button
@@ -207,6 +209,16 @@ export const TopBar: React.FC<{ onMenuClick: () => void; title: string }> = ({ o
         <Menu size={20} />
       </button>
       <h1 className="text-base font-semibold text-white flex-1">{title}</h1>
+      {/* PWA install button */}
+      {isInstallable && (
+        <button
+          onClick={install}
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-brand-500/15 hover:bg-brand-500/25 text-brand-400 border border-brand-500/20 rounded-lg transition-colors"
+        >
+          <Download size={13} />
+          Install App
+        </button>
+      )}
       {/* Fix #15: notification bell with unread badge */}
       <Link to="/notifications" className="relative p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors">
         <Bell size={18} />
