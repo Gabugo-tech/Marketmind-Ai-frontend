@@ -54,14 +54,12 @@ export const InventoryPage: React.FC = () => {
   const products: Product[] = data?.data ?? [];
 
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-white">Inventory</h2>
-          <p className="text-sm text-navy-400">
-            {data?.pagination?.total ?? 0} products
-          </p>
+          <p className="text-sm text-navy-400">{data?.pagination?.total ?? 0} products</p>
         </div>
         <Button size="sm" icon={<Plus size={16} />} onClick={() => setShowAddModal(true)}>
           Add Product
@@ -69,144 +67,149 @@ export const InventoryPage: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 flex-wrap">
-        <div className="flex-1 min-w-48">
-          <Input
-            placeholder="Search products, SKU..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            leftIcon={<Search size={16} />}
-          />
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <Input placeholder="Search products, SKU..." value={search}
+            onChange={(e) => setSearch(e.target.value)} leftIcon={<Search size={16} />} />
         </div>
-        <Select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+        <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
           options={[
-            { value: '', label: 'All stock' },
-            { value: 'low_stock', label: 'Low stock' },
-            { value: 'out_of_stock', label: 'Out of stock' },
+            { value: '', label: 'All' },
+            { value: 'low_stock', label: 'Low' },
+            { value: 'out_of_stock', label: 'Out' },
           ]}
-          className="w-40"
+          className="w-24"
         />
       </div>
 
-      {/* Products table */}
+      {/* Products — card layout on mobile, table on desktop */}
       <Card padding="none">
         {isLoading ? (
           <LoadingSpinner className="py-16" />
         ) : products.length === 0 ? (
           <EmptyState
             icon={<Package size={28} />}
-            title={search || statusFilter ? 'No products match your filters' : 'No products found'}
-            description={search || statusFilter ? 'Try clearing your search or filter' : 'Add your first product to get started'}
+            title={search || statusFilter ? 'No products match filters' : 'No products found'}
+            description={!search && !statusFilter ? 'Add your first product to get started' : undefined}
             action={!search && !statusFilter ? <Button icon={<Plus size={16} />} onClick={() => setShowAddModal(true)}>Add Product</Button> : undefined}
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-navy-700">
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-navy-400 uppercase tracking-wider">Product</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-navy-400 uppercase tracking-wider hidden sm:table-cell">SKU</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-navy-400 uppercase tracking-wider">Stock</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-navy-400 uppercase tracking-wider hidden md:table-cell">Buy Price</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-navy-400 uppercase tracking-wider">Sell Price</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-navy-400 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-navy-400 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-navy-700/50">
-                {products.map((p) => (
-                  <tr key={p.id} className="hover:bg-navy-700/30 transition-colors">
-                    <td className="px-5 py-3.5">
-                      <div>
-                        <p className="text-sm font-medium text-white">{p.name}</p>
-                        {p.category && (
-                          <p className="text-xs text-navy-400">{p.category.name}</p>
-                        )}
+          <>
+            {/* Mobile card list */}
+            <div className="sm:hidden divide-y divide-navy-700/50">
+              {products.map((p) => (
+                <div key={p.id} className="px-4 py-3.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-white truncate">{p.name}</p>
+                      {p.category && <p className="text-xs text-navy-400">{p.category.name}</p>}
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="text-xs text-navy-400">
+                          Stock: <span className={cn('font-semibold', p.quantity <= 0 ? 'text-red-400' : p.quantity <= p.minStockLevel ? 'text-amber-400' : 'text-white')}>{p.quantity}</span>
+                        </span>
+                        <span className="text-xs text-navy-400">
+                          Price: <span className="text-white font-medium">{formatCurrency(Number(p.sellingPrice))}</span>
+                        </span>
                       </div>
-                    </td>
-                    <td className="px-4 py-3.5 hidden sm:table-cell">
-                      <span className="text-xs font-mono text-navy-400">{p.sku || '—'}</span>
-                    </td>
-                    <td className="px-4 py-3.5 text-right">
-                      <span className={cn(
-                        'text-sm font-semibold',
-                        p.quantity <= 0 ? 'text-red-400' : p.quantity <= p.minStockLevel ? 'text-amber-400' : 'text-white'
-                      )}>
-                        {p.quantity}
-                      </span>
-                      <span className="text-xs text-navy-500 ml-1">{p.unit}</span>
-                    </td>
-                    <td className="px-4 py-3.5 text-right hidden md:table-cell">
-                      <span className="text-sm text-navy-300">{formatCurrency(Number(p.purchasePrice))}</span>
-                    </td>
-                    <td className="px-4 py-3.5 text-right">
-                      <span className="text-sm font-medium text-white">{formatCurrency(Number(p.sellingPrice))}</span>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <Badge variant={STOCK_STATUS_VARIANTS[p.stockStatus] ?? 'neutral'} dot>
+                    </div>
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      <Badge variant={STOCK_STATUS_VARIANTS[p.stockStatus] ?? 'neutral'} size="sm" dot>
                         {getStockStatusLabel(p.stockStatus)}
                       </Badge>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => setEditProduct(p)}
-                          className="p-1.5 text-navy-400 hover:text-white hover:bg-navy-600 rounded-lg transition-colors"
-                        >
-                          <Edit2 size={14} />
+                      <div className="flex gap-1">
+                        <button onClick={() => setEditProduct(p)} className="p-1.5 text-navy-400 hover:text-white hover:bg-navy-600 rounded-lg transition-colors">
+                          <Edit2 size={13} />
                         </button>
-                        <button
-                          onClick={() => setDeleteConfirm(p)}
-                          className="p-1.5 text-navy-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                        >
-                          <Trash2 size={14} />
+                        <button onClick={() => setDeleteConfirm(p)} className="p-1.5 text-navy-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                          <Trash2 size={13} />
                         </button>
                       </div>
-                    </td>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-navy-700">
+                    <th className="px-5 py-3 text-left text-xs font-semibold text-navy-400 uppercase">Product</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-navy-400 uppercase hidden lg:table-cell">SKU</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-navy-400 uppercase">Stock</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-navy-400 uppercase hidden md:table-cell">Buy</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-navy-400 uppercase">Sell</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-navy-400 uppercase">Status</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-navy-400 uppercase">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-navy-700/50">
+                  {products.map((p) => (
+                    <tr key={p.id} className="hover:bg-navy-700/30 transition-colors">
+                      <td className="px-5 py-3">
+                        <p className="text-sm font-medium text-white">{p.name}</p>
+                        {p.category && <p className="text-xs text-navy-400">{p.category.name}</p>}
+                      </td>
+                      <td className="px-4 py-3 hidden lg:table-cell">
+                        <span className="text-xs font-mono text-navy-400">{p.sku || '—'}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className={cn('text-sm font-semibold', p.quantity <= 0 ? 'text-red-400' : p.quantity <= p.minStockLevel ? 'text-amber-400' : 'text-white')}>
+                          {p.quantity}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right hidden md:table-cell">
+                        <span className="text-sm text-navy-300">{formatCurrency(Number(p.purchasePrice))}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm font-medium text-white">{formatCurrency(Number(p.sellingPrice))}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant={STOCK_STATUS_VARIANTS[p.stockStatus] ?? 'neutral'} dot>
+                          {getStockStatusLabel(p.stockStatus)}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => setEditProduct(p)} className="p-1.5 text-navy-400 hover:text-white hover:bg-navy-600 rounded-lg transition-colors">
+                            <Edit2 size={14} />
+                          </button>
+                          <button onClick={() => setDeleteConfirm(p)} className="p-1.5 text-navy-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </Card>
 
-      {/* Add Product Modal */}
       <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="Add New Product" size="lg">
         <ProductForm onSuccess={() => { setShowAddModal(false); qc.invalidateQueries({ queryKey: ['products'] }); }} />
       </Modal>
 
-      {/* Edit Product Modal */}
       <Modal open={!!editProduct} onClose={() => setEditProduct(null)} title="Edit Product" size="lg">
         {editProduct && (
-          <ProductForm
-            product={editProduct}
-            onSuccess={() => { setEditProduct(null); qc.invalidateQueries({ queryKey: ['products'] }); }}
-          />
+          <ProductForm product={editProduct} onSuccess={() => { setEditProduct(null); qc.invalidateQueries({ queryKey: ['products'] }); }} />
         )}
       </Modal>
 
-      {/* Delete Confirm Modal */}
-      <Modal
-        open={!!deleteConfirm}
-        onClose={() => setDeleteConfirm(null)}
-        title="Delete Product"
-        size="sm"
+      <Modal open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} title="Delete Product" size="sm"
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
             <Button variant="danger" loading={deleteMutation.isPending}
-              onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm.id)}>
-              Delete Product
-            </Button>
+              onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm.id)}>Delete</Button>
           </>
         }
       >
         <p className="text-sm text-navy-300">
-          Are you sure you want to delete <span className="font-semibold text-white">{deleteConfirm?.name}</span>?
-          This will remove the product but preserve its sales history.
+          Delete <span className="font-semibold text-white">{deleteConfirm?.name}</span>? Sales history is preserved.
         </p>
       </Modal>
     </div>

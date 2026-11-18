@@ -99,18 +99,19 @@ export const LandingPage: React.FC = () => {
             <span className="font-bold text-white">MarketMind <span className="text-brand-400">AI</span></span>
             <span className="text-[10px] font-bold px-1.5 py-0.5 bg-brand-500/20 text-brand-400 rounded-full border border-brand-500/30">BETA</span>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={toggle} className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-800 transition-colors">
+          {/* Navbar - mobile optimized */}
+          <div className="flex items-center gap-2">
+            <button onClick={toggle} className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-800 transition-colors shrink-0">
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
-            <Link to="/install" className="flex items-center gap-1.5 text-sm font-medium text-brand-400 hover:text-brand-300 px-3 py-2 transition-colors border border-brand-500/30 rounded-lg">
+            <Link to="/install" className="hidden md:flex items-center gap-1.5 text-sm font-medium text-brand-400 px-3 py-2 transition-colors border border-brand-500/30 rounded-lg shrink-0">
               <Download size={14} /> Install App
             </Link>
-            <Link to="/login" className="hidden sm:block text-sm text-navy-300 hover:text-white transition-colors px-3 py-2">
+            <Link to="/login" className="hidden sm:block text-sm text-navy-300 hover:text-white transition-colors px-3 py-2 shrink-0">
               Sign in
             </Link>
-            <Link to="/register" className="text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
-              Get Started <ChevronRight size={14} />
+            <Link to="/register" className="text-xs sm:text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors flex items-center gap-1 shrink-0">
+              Get Started <ChevronRight size={12} />
             </Link>
           </div>
         </div>
@@ -122,13 +123,13 @@ export const LandingPage: React.FC = () => {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-20 right-1/4 w-64 h-64 bg-blue-500/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-10 sm:pb-16 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500/10 border border-brand-500/20 rounded-full text-sm font-semibold text-brand-400 mb-8">
             <span className="w-2 h-2 bg-brand-400 rounded-full animate-pulse" />
             Built specifically for traders in Onitsha, Anambra State
           </div>
 
-          <h1 className="text-5xl sm:text-6xl font-bold text-white leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
             Know Your Stock.<br />
             <span className="text-brand-400">Predict Your Sales.</span><br />
             Grow Your Business.
@@ -139,15 +140,15 @@ export const LandingPage: React.FC = () => {
             Stop guessing. Start knowing exactly what to sell, what to restock, and when.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link to="/register" className="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold px-8 py-4 rounded-xl transition-all text-base shadow-glow-brand">
-              Start for Free <ArrowRight size={18} />
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12">
+            <Link to="/register" className="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold px-6 py-3.5 rounded-xl transition-all text-sm sm:text-base shadow-glow-brand">
+              Start for Free <ArrowRight size={16} />
             </Link>
-            <Link to="/login" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-navy-700 text-white font-semibold px-8 py-4 rounded-xl transition-all text-base">
+            <Link to="/login" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-navy-700 text-white font-semibold px-6 py-3.5 rounded-xl transition-all text-sm sm:text-base">
               Sign in
             </Link>
-            <Link to="/install" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-brand-500/30 text-brand-400 hover:text-brand-300 font-semibold px-8 py-4 rounded-xl transition-all text-base">
-              <Smartphone size={18} /> Install App
+            <Link to="/install" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-brand-500/30 text-brand-400 hover:text-brand-300 font-semibold px-6 py-3.5 rounded-xl transition-all text-sm sm:text-base">
+              <Smartphone size={16} /> Install App
             </Link>
           </div>
 
