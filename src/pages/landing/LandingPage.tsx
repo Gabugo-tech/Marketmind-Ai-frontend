@@ -103,12 +103,9 @@ export const LandingPage: React.FC = () => {
             <button onClick={toggle} className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-800 transition-colors">
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
-            <button
-              onClick={isInstallable ? install : () => alert('To install: Click the browser menu (⋮) → "Install MarketMind AI" or "Add to Home Screen"')}
-              className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-brand-400 hover:text-brand-300 px-3 py-2 transition-colors"
-            >
+            <Link to="/install" className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-brand-400 hover:text-brand-300 px-3 py-2 transition-colors">
               <Download size={14} /> Install App
-            </button>
+            </Link>
             <Link to="/login" className="text-sm text-navy-300 hover:text-white transition-colors px-3 py-2">
               Sign in
             </Link>
@@ -149,12 +146,9 @@ export const LandingPage: React.FC = () => {
             <Link to="/login" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-navy-700 text-white font-semibold px-8 py-4 rounded-xl transition-all text-base">
               Sign in
             </Link>
-            <button
-              onClick={isInstallable ? install : () => alert('To install MarketMind AI on your phone:\n\n📱 Android (Chrome): Tap the menu (⋮) → "Add to Home Screen"\n🍎 iPhone (Safari): Tap Share (□↑) → "Add to Home Screen"')}
-              className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-brand-500/30 text-brand-400 hover:text-brand-300 font-semibold px-8 py-4 rounded-xl transition-all text-base"
-            >
+            <Link to="/install" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-brand-500/30 text-brand-400 hover:text-brand-300 font-semibold px-8 py-4 rounded-xl transition-all text-base">
               <Smartphone size={18} /> Install App
-            </button>
+            </Link>
           </div>
 
           {/* Hero stats */}
@@ -302,3 +296,4 @@ export const LandingPage: React.FC = () => {
     </div>
   );
 };
+

@@ -4,6 +4,7 @@ import { useAuthStore } from './store/auth.store';
 import { AppLayout } from './components/layout/AppLayout';
 
 import { LandingPage } from './pages/landing/LandingPage';
+import { InstallPage } from './pages/landing/InstallPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
@@ -33,6 +34,7 @@ export default function App() {
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/install" element={<InstallPage />} />
         <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
         <Route path="/register" element={<AuthRoute><RegisterPage /></AuthRoute>} />
 
