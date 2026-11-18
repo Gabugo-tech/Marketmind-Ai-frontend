@@ -29,8 +29,8 @@ const features = [
   },
   {
     icon: Bot,
-    label: 'Gemini AI Assistant',
-    desc: 'Ask "Which products made the most profit this week?" in plain English. Powered by Google Gemini with live access to your real business data — not generic answers.',
+    label: 'MarketMind AI Assistant',
+    desc: 'Ask "Which products made the most profit this week?" in plain English. Powered by MarketMind AI with live access to your real business data — not generic answers.',
     color: 'bg-amber-500/15 text-amber-400',
   },
   {
@@ -297,4 +297,5 @@ export const LandingPage: React.FC = () => {
     </div>
   );
 };
+
 

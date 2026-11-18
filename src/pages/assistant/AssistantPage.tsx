@@ -105,7 +105,7 @@ export const AssistantPage: React.FC = () => {
           <h2 className="text-base font-bold text-white flex items-center gap-2">
             MarketMind AI Assistant
             <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 bg-brand-500/20 text-brand-400 rounded-full">
-              <Zap size={10} /> Powered by Gemini
+              <Zap size={10} /> Powered by MarketMind
             </span>
           </h2>
           <p className="text-xs text-navy-400">Ask anything about your business — inventory, sales, profit, trends</p>
@@ -228,3 +228,4 @@ export const AssistantPage: React.FC = () => {
     </div>
   );
 };
+
