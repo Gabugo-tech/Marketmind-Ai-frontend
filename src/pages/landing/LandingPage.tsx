@@ -103,10 +103,10 @@ export const LandingPage: React.FC = () => {
             <button onClick={toggle} className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-800 transition-colors">
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
-            <Link to="/install" className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-brand-400 hover:text-brand-300 px-3 py-2 transition-colors">
+            <Link to="/install" className="flex items-center gap-1.5 text-sm font-medium text-brand-400 hover:text-brand-300 px-3 py-2 transition-colors border border-brand-500/30 rounded-lg">
               <Download size={14} /> Install App
             </Link>
-            <Link to="/login" className="text-sm text-navy-300 hover:text-white transition-colors px-3 py-2">
+            <Link to="/login" className="hidden sm:block text-sm text-navy-300 hover:text-white transition-colors px-3 py-2">
               Sign in
             </Link>
             <Link to="/register" className="text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">

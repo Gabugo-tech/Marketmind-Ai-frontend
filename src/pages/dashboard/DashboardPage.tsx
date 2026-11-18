@@ -104,8 +104,8 @@ export const DashboardPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI Cards - 2 cols on mobile */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
         <StatCard title="Today's Sales" value={formatCurrency(stats?.salesToday ?? 0)} subtitle={`${stats?.transactionsToday ?? 0} transactions`} icon={<DollarSign size={18} />} loading={statsLoading} />
         <StatCard title="Today's Profit" value={formatCurrency(stats?.profitToday ?? 0)} subtitle="Gross profit" icon={<TrendingUp size={18} />} iconBg="bg-blue-500/15" loading={statsLoading} />
         <StatCard title="This Month" value={formatCurrency(stats?.salesThisMonth ?? 0)} subtitle={formatCurrency(stats?.profitThisMonth ?? 0) + ' profit'} icon={<BarChart2 size={18} />} iconBg="bg-purple-500/15" loading={statsLoading} />

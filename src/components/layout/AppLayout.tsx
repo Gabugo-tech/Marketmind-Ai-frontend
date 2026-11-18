@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar, TopBar } from './Sidebar';
+import { BottomNav } from './BottomNav';
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -9,8 +10,8 @@ const pageTitles: Record<string, string> = {
   '/purchases': 'Purchases',
   '/analytics': 'Analytics',
   '/forecasting': 'AI Forecasting',
-  '/assistant': 'AI Business Assistant',
-  '/notifications': 'Alerts & Notifications',
+  '/assistant': 'AI Assistant',
+  '/notifications': 'Alerts',
 };
 
 export const AppLayout: React.FC = () => {
@@ -26,12 +27,13 @@ export const AppLayout: React.FC = () => {
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopBar onMenuClick={() => setMobileOpen(true)} title={title} />
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-4 lg:p-6 max-w-screen-2xl mx-auto">
+        <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
+          <div className="p-3 sm:p-4 lg:p-6 max-w-screen-2xl mx-auto">
             <Outlet />
           </div>
         </main>
       </div>
+      <BottomNav />
     </div>
   );
 };
