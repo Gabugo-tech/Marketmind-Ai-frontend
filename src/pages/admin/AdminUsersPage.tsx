@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Search, UserCheck, UserX, Shield,
-  AlertTriangle, X, Ban, CheckCircle2
+  Search, Shield, AlertTriangle, X, Ban, CheckCircle2, Trash2
 } from 'lucide-react';
 import { adminApi } from '@/lib/adminApi';
 import { Card } from '@/components/ui/Card';
@@ -127,7 +126,83 @@ const SuspendModal: React.FC<{
   );
 };
 
-// ── Unsuspend confirmation modal ───────────────────────────────────────────────
+// ── Delete confirmation modal ─────────────────────────────────────────────────
+const DeleteModal: React.FC<{
+  user: AdminUser;
+  isDark: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  loading: boolean;
+}> = ({ user, isDark, onConfirm, onCancel, loading }) => {
+  const [confirm, setConfirm] = useState('');
+  const surface = isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200';
+  const textPrim = isDark ? 'text-white' : 'text-slate-900';
+  const textMut = isDark ? 'text-slate-400' : 'text-slate-500';
+  const inputCls = isDark
+    ? 'bg-slate-900 border-slate-600 text-slate-100 placeholder-slate-500'
+    : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400';
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
+      <div className={cn('relative w-full max-w-md rounded-2xl border p-6 shadow-xl animate-slide-up', surface)}>
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-500/15 rounded-xl flex items-center justify-center shrink-0">
+              <Trash2 size={18} className="text-red-400" />
+            </div>
+            <div>
+              <h3 className={cn('text-base font-bold', textPrim)}>Delete Account</h3>
+              <p className={cn('text-xs mt-0.5', textMut)}>{user.firstName} {user.lastName} — {user.email}</p>
+            </div>
+          </div>
+          <button onClick={onCancel} className={cn('p-1.5 rounded-lg transition-colors', textMut, 'hover:text-red-400')}>
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl mb-5">
+          <p className="text-xs text-red-300 font-medium mb-1">⚠ This action is permanent and cannot be undone.</p>
+          <p className="text-xs text-red-300">All businesses, products, sales, purchases and data for this account will be permanently deleted.</p>
+        </div>
+
+        <div className="mb-5">
+          <label className={cn('block text-xs font-medium mb-1.5', textMut)}>
+            Type <strong className="text-red-400">DELETE</strong> to confirm
+          </label>
+          <input
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder="DELETE"
+            className={cn(
+              'w-full rounded-xl px-4 py-2.5 text-sm border focus:outline-none focus:ring-2 focus:ring-red-500',
+              inputCls
+            )}
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className={cn(
+              'flex-1 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors touch-manipulation',
+              isDark ? 'bg-slate-700 text-slate-200 hover:bg-slate-600' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            )}
+          >Cancel</button>
+          <Button
+            variant="danger"
+            loading={loading}
+            disabled={confirm !== 'DELETE'}
+            onClick={onConfirm}
+            className="flex-1"
+          >
+            Delete Permanently
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
 const UnsuspendModal: React.FC<{
   user: AdminUser;
   isDark: boolean;
@@ -188,6 +263,7 @@ export const AdminUsersPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [suspendTarget, setSuspendTarget] = useState<AdminUser | null>(null);
   const [unsuspendTarget, setUnsuspendTarget] = useState<AdminUser | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
 
   // Theme helpers
   const surface  = isDark ? '!bg-slate-900 !border-slate-700' : '!bg-white !border-slate-200';
@@ -205,15 +281,6 @@ export const AdminUsersPage: React.FC = () => {
     queryFn: async () =>
       (await adminApi.get(`/users?page=${page}&limit=20&search=${encodeURIComponent(search)}`)).data.data,
     placeholderData: (prev) => prev,
-  });
-
-  const toggleMutation = useMutation({
-    mutationFn: (userId: string) => adminApi.patch(`/users/${userId}/toggle`),
-    onSuccess: (res) => {
-      qc.invalidateQueries({ queryKey: ['admin-users'] });
-      toast.success(`User ${res.data.data.isActive ? 'activated' : 'deactivated'}`);
-    },
-    onError: (e: any) => toast.error(e.response?.data?.message ?? 'Failed'),
   });
 
   const suspendMutation = useMutation({
@@ -237,6 +304,16 @@ export const AdminUsersPage: React.FC = () => {
     onError: (e: any) => toast.error(e.response?.data?.message ?? 'Failed to unsuspend'),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (userId: string) => adminApi.delete(`/users/${userId}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-users'] });
+      setDeleteTarget(null);
+      toast.success('Account permanently deleted');
+    },
+    onError: (e: any) => toast.error(e.response?.data?.message ?? 'Failed to delete'),
+  });
+
   const users: AdminUser[] = data?.users ?? [];
 
   const statusBadge = (u: AdminUser) => {
@@ -250,34 +327,39 @@ export const AdminUsersPage: React.FC = () => {
     return (
       <div className="flex items-center gap-1">
         {u.isSuspended ? (
-          <button
-            onClick={() => setUnsuspendTarget(u)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors touch-manipulation"
-            title="Lift suspension"
-          >
-            <CheckCircle2 size={15} />
-          </button>
+          // Suspended: show Restore + Delete
+          <>
+            <button
+              onClick={() => setUnsuspendTarget(u)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors touch-manipulation"
+              title="Lift suspension"
+            >
+              <CheckCircle2 size={15} />
+            </button>
+            <button
+              onClick={() => setDeleteTarget(u)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors touch-manipulation"
+              title="Delete account permanently"
+            >
+              <Trash2 size={15} />
+            </button>
+          </>
         ) : (
+          // Active: show Suspend + Delete
           <>
             <button
               onClick={() => setSuspendTarget(u)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors touch-manipulation"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 transition-colors touch-manipulation"
               title="Suspend account"
             >
               <Ban size={15} />
             </button>
             <button
-              onClick={() => toggleMutation.mutate(u.id)}
-              disabled={toggleMutation.isPending}
-              className={cn(
-                'p-1.5 rounded-lg transition-colors touch-manipulation',
-                u.isActive
-                  ? 'text-slate-400 hover:text-amber-400 hover:bg-amber-500/10'
-                  : 'text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10'
-              )}
-              title={u.isActive ? 'Deactivate' : 'Activate'}
+              onClick={() => setDeleteTarget(u)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors touch-manipulation"
+              title="Delete account permanently"
             >
-              {u.isActive ? <UserX size={15} /> : <UserCheck size={15} />}
+              <Trash2 size={15} />
             </button>
           </>
         )}
@@ -428,6 +510,15 @@ export const AdminUsersPage: React.FC = () => {
           loading={unsuspendMutation.isPending}
           onConfirm={() => unsuspendMutation.mutate(unsuspendTarget.id)}
           onCancel={() => setUnsuspendTarget(null)}
+        />
+      )}
+      {deleteTarget && (
+        <DeleteModal
+          user={deleteTarget}
+          isDark={isDark}
+          loading={deleteMutation.isPending}
+          onConfirm={() => deleteMutation.mutate(deleteTarget.id)}
+          onCancel={() => setDeleteTarget(null)}
         />
       )}
     </div>
