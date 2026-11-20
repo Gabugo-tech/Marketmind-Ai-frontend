@@ -17,13 +17,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auto-refresh on 401
+// Auto-refresh on 401 — but NOT for auth endpoints themselves
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status === 401 && !original._retry) {
+    // Never retry login/register/refresh — those 401s are real credential errors
+    const isAuthEndpoint = original?.url?.includes('/auth/');
+
+    if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       original._retry = true;
       try {
         const refreshToken = useAuthStore.getState().refreshToken;
