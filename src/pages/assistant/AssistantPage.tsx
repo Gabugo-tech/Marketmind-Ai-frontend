@@ -258,10 +258,10 @@ export const AssistantPage: React.FC = () => {
       )}
 
       {/* Input area — shrink-0 so it never gets squished by the messages area.
-          pb-20 on mobile clears the BottomNav (≈56px) + a little breathing room.
-          safe-area-pb adds env(safe-area-inset-bottom) for the iOS home bar.
+          pb-16 on mobile clears the BottomNav (~56px) exactly.
+          safe-area-pb adds env(safe-area-inset-bottom) for the iOS home bar on top.
           lg:pb-3 resets padding on desktop where there's no BottomNav. */}
-      <div className="bg-navy-900 border-t border-navy-700 px-4 sm:px-6 py-3 pb-20 lg:pb-3 shrink-0 safe-area-pb">
+      <div className="bg-navy-900 border-t border-navy-700 px-4 sm:px-6 py-3 pb-16 lg:pb-3 shrink-0 safe-area-pb">
         {/* Quick-suggestion strip — only when conversation just started */}
         {messages.length > 0 && messages.length < 4 && (
           <div className="flex gap-2 mb-2.5 overflow-x-auto pb-1 scrollbar-hide">

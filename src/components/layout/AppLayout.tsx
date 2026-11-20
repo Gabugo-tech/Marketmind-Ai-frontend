@@ -25,7 +25,9 @@ export const AppLayout: React.FC = () => {
   const isAssistant = location.pathname.startsWith('/assistant');
 
   return (
-    <div className="flex h-screen bg-navy-950 overflow-hidden">
+    // h-[100dvh] = dynamic viewport height — iOS Safari correctly excludes
+    // the address bar and bottom browser chrome, preventing overflow.
+    <div className="flex bg-navy-950 overflow-hidden" style={{ height: '100dvh' }}>
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
