@@ -93,9 +93,9 @@ export const ForecastingPage: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      {/* Header — stacks on mobile */}
+      <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+        <div className="flex-1 min-w-0">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             AI Sales Forecasting
           </h2>
@@ -103,14 +103,13 @@ export const ForecastingPage: React.FC = () => {
             Demand predictions using Holt's Exponential Smoothing on your actual sales history
           </p>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center shrink-0">
           <Select
             value={days}
             onChange={(e) => setDays(e.target.value as '7' | '14' | '30')}
             options={FORECAST_DAYS}
             className="w-36"
           />
-          {/* Fix #6: shows spinner when re-running */}
           <Button
             size="sm"
             variant="secondary"
@@ -140,17 +139,16 @@ export const ForecastingPage: React.FC = () => {
           <CardHeader>
             <CardTitle>Demand Forecast — {FORECAST_DAYS.find((d) => d.value === days)?.label}</CardTitle>
             {selectedForecast && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap justify-end">
                 {selectedForecast.mape !== undefined && !selectedForecast.insufficientData && (
-                  <span className="text-xs text-navy-400">
+                  <span className="text-xs text-navy-400 whitespace-nowrap">
                     Accuracy: <span className="text-brand-400">{(100 - (selectedForecast.mape ?? 0)).toFixed(0)}%</span>
                   </span>
                 )}
-                {/* Fix #7: styled select consistent with UI */}
                 <select
                   value={selectedProduct ?? ''}
                   onChange={(e) => setSelectedProduct(e.target.value || null)}
-                  className="text-xs bg-navy-700 border border-navy-600 text-navy-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-brand-500 max-w-44 cursor-pointer"
+                  className="text-xs bg-navy-700 border border-navy-600 text-navy-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-brand-500 max-w-[10rem] cursor-pointer"
                 >
                   {forecasts?.map((f) => (
                     <option key={f.productId} value={f.productId}>{f.productName}</option>
@@ -175,24 +173,25 @@ export const ForecastingPage: React.FC = () => {
                 </div>
               )}
               <ForecastChart result={selectedForecast} />
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                <div className="p-3 bg-navy-700/50 rounded-xl text-center">
-                  <p className="text-xs text-navy-400">Avg Daily</p>
-                  <p className="text-lg font-bold text-white mt-0.5">{selectedForecast.dailyAverage}</p>
-                  <p className="text-xs text-navy-400">units/day</p>
+              {/* Stats grid — 3 cols always, but compact on mobile */}
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="p-2.5 sm:p-3 bg-navy-700/50 rounded-xl text-center">
+                  <p className="text-[10px] sm:text-xs text-navy-400">Avg Daily</p>
+                  <p className="text-base sm:text-lg font-bold text-white mt-0.5">{selectedForecast.dailyAverage}</p>
+                  <p className="text-[10px] sm:text-xs text-navy-400">units/day</p>
                 </div>
-                <div className="p-3 bg-navy-700/50 rounded-xl text-center">
-                  <p className="text-xs text-navy-400">Predicted Total</p>
-                  <p className="text-lg font-bold text-brand-400 mt-0.5">{Math.round(selectedForecast.predictedTotal)}</p>
-                  <p className="text-xs text-navy-400">units in {days} days</p>
+                <div className="p-2.5 sm:p-3 bg-navy-700/50 rounded-xl text-center">
+                  <p className="text-[10px] sm:text-xs text-navy-400">Predicted</p>
+                  <p className="text-base sm:text-lg font-bold text-brand-400 mt-0.5">{Math.round(selectedForecast.predictedTotal)}</p>
+                  <p className="text-[10px] sm:text-xs text-navy-400">in {days} days</p>
                 </div>
-                <div className="p-3 bg-navy-700/50 rounded-xl text-center">
-                  <p className="text-xs text-navy-400">Method</p>
-                  <p className="text-xs font-semibold text-white mt-0.5">
+                <div className="p-2.5 sm:p-3 bg-navy-700/50 rounded-xl text-center">
+                  <p className="text-[10px] sm:text-xs text-navy-400">Method</p>
+                  <p className="text-[10px] sm:text-xs font-semibold text-white mt-0.5">
                     {selectedForecast.method === 'DOUBLE_EXPONENTIAL_SMOOTHING' ? "Holt's DES" :
                      selectedForecast.method === 'MOVING_AVERAGE' ? 'Moving Avg' : 'Baseline'}
                   </p>
-                  <p className="text-xs text-navy-400">{selectedForecast.dataPointsUsed} data points</p>
+                  <p className="text-[10px] sm:text-xs text-navy-400">{selectedForecast.dataPointsUsed} pts</p>
                 </div>
               </div>
             </>
@@ -244,11 +243,12 @@ export const ForecastingPage: React.FC = () => {
         <CardHeader><CardTitle>All Restocking Recommendations</CardTitle></CardHeader>
         {restockLoading ? <LoadingSpinner className="py-8" /> : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            {/* min-w-[640px] prevents 7-col table from crushing on narrow screens */}
+            <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b border-navy-700">
                   {['Product', 'Stock', 'Daily Sales', 'Days Left', 'Order Qty', 'Est. Cost', 'Urgency'].map((h) => (
-                    <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-navy-400 uppercase">{h}</th>
+                    <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-navy-400 uppercase whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>

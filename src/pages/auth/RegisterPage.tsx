@@ -54,17 +54,17 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-navy-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-navy-950 flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex items-center gap-2 justify-center mb-8">
-          <div className="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center">
+        <div className="flex items-center gap-2 justify-center mb-6 sm:mb-8">
+          <div className="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center shrink-0">
             <Zap size={18} className="text-white" fill="white" />
           </div>
           <span className="text-xl font-bold text-white">MarketMind <span className="text-brand-400">AI</span></span>
         </div>
 
-        <div className="bg-navy-800 border border-navy-700 rounded-2xl p-7">
+        <div className="bg-navy-800 border border-navy-700 rounded-2xl p-5 sm:p-7">
           {/* Step indicator */}
           <div className="flex items-center gap-2 mb-6">
             {[1, 2].map((s) => (
@@ -84,7 +84,8 @@ export const RegisterPage: React.FC = () => {
           <form onSubmit={step === 2 ? handleSubmit : (e) => { e.preventDefault(); setStep(2); }}>
             {step === 1 ? (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
+                {/* First/last name: 2-col on sm+, stack on mobile */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Input label="First name" value={form.firstName} onChange={set('firstName')} required placeholder="Chukwuemeka" />
                   <Input label="Last name" value={form.lastName} onChange={set('lastName')} required placeholder="Okafor" />
                 </div>
@@ -132,7 +133,6 @@ export const RegisterPage: React.FC = () => {
           Already have an account?{' '}
           <Link to="/login" className="text-brand-400 hover:text-brand-300 font-medium">Sign in</Link>
         </p>
-        {/* Fix #9: back to homepage */}
         <p className="text-center mt-2">
           <Link to="/" className="text-xs text-navy-500 hover:text-navy-300 transition-colors">
             ← Back to homepage

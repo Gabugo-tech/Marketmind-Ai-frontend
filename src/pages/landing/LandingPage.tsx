@@ -124,18 +124,18 @@ export const LandingPage: React.FC = () => {
         <div className="absolute top-20 right-1/4 w-64 h-64 bg-blue-500/8 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-10 sm:pb-16 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500/10 border border-brand-500/20 rounded-full text-sm font-semibold text-brand-400 mb-8">
-            <span className="w-2 h-2 bg-brand-400 rounded-full animate-pulse" />
-            Built specifically for traders in Onitsha, Anambra State
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-brand-500/10 border border-brand-500/20 rounded-full text-xs sm:text-sm font-semibold text-brand-400 mb-8">
+            <span className="w-2 h-2 bg-brand-400 rounded-full animate-pulse shrink-0" />
+            <span>Built specifically for traders in Onitsha, Anambra State</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
             Know Your Stock.<br />
             <span className="text-brand-400">Predict Your Sales.</span><br />
             Grow Your Business.
           </h1>
 
-          <p className="text-xl text-navy-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-xl text-navy-300 max-w-2xl mx-auto mb-10 leading-relaxed">
             MarketMind AI transforms your sales records into actionable intelligence.
             Stop guessing. Start knowing exactly what to sell, what to restock, and when.
           </p>
@@ -167,14 +167,14 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Features ─────────────────────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-white mb-3">Everything a trader needs</h2>
-          <p className="text-navy-400 text-lg max-w-xl mx-auto">Six powerful modules working together to give you complete control over your business.</p>
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+        <div className="text-center mb-10 sm:mb-14">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Everything a trader needs</h2>
+          <p className="text-navy-400 text-base sm:text-lg max-w-xl mx-auto">Six powerful modules working together to give you complete control over your business.</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {features.map((f) => (
-            <div key={f.label} className="p-6 bg-navy-800 rounded-2xl border border-navy-700 hover:border-brand-500/30 transition-all group">
+            <div key={f.label} className="p-5 sm:p-6 bg-navy-800 rounded-2xl border border-navy-700 hover:border-brand-500/30 transition-all group">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${f.color}`}>
                 <f.icon size={20} />
               </div>
@@ -186,11 +186,11 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── How it works ─────────────────────────────────────── */}
-      <section className="bg-navy-900 border-y border-navy-700 py-20">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-white mb-3">Up and running in minutes</h2>
-            <p className="text-navy-400 text-lg">No technical knowledge required. Built for traders, not tech experts.</p>
+      <section className="bg-navy-900 border-y border-navy-700 py-14 sm:py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10 sm:mb-14">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Up and running in minutes</h2>
+            <p className="text-navy-400 text-base sm:text-lg">No technical knowledge required. Built for traders, not tech experts.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {steps.map((s, i) => (
@@ -212,14 +212,14 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Testimonials ─────────────────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-white mb-3">Traders love MarketMind AI</h2>
-          <p className="text-navy-400 text-lg">Real feedback from Onitsha market traders.</p>
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+        <div className="text-center mb-10 sm:mb-14">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Traders love MarketMind AI</h2>
+          <p className="text-navy-400 text-base sm:text-lg">Real feedback from Onitsha market traders.</p>
         </div>
-        <div className="grid sm:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
           {testimonials.map((t) => (
-            <div key={t.name} className="p-6 bg-navy-800 rounded-2xl border border-navy-700">
+            <div key={t.name} className="p-5 sm:p-6 bg-navy-800 rounded-2xl border border-navy-700">
               <div className="flex gap-1 mb-4">
                 {[...Array(t.stars)].map((_, i) => (
                   <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
@@ -227,12 +227,12 @@ export const LandingPage: React.FC = () => {
               </div>
               <p className="text-sm text-navy-300 italic leading-relaxed mb-5">"{t.text}"</p>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-brand-500/20 rounded-full flex items-center justify-center">
+                <div className="w-9 h-9 bg-brand-500/20 rounded-full flex items-center justify-center shrink-0">
                   <Store size={14} className="text-brand-400" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-semibold text-white">{t.name}</p>
-                  <p className="text-xs text-navy-400">{t.role}</p>
+                  <p className="text-xs text-navy-400 truncate">{t.role}</p>
                 </div>
               </div>
             </div>
@@ -242,33 +242,33 @@ export const LandingPage: React.FC = () => {
 
       {/* ── CTA ──────────────────────────────────────────────── */}
       <section className="bg-navy-900 border-t border-navy-700">
-        <div className="max-w-3xl mx-auto px-6 py-20 text-center">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14 sm:py-20 text-center">
           <div className="w-16 h-16 bg-brand-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glow-brand">
             <Zap size={28} className="text-white" fill="white" />
           </div>
-          <h2 className="text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Ready to grow your business?
           </h2>
-          <p className="text-navy-300 text-lg mb-8 leading-relaxed">
+          <p className="text-navy-300 text-base sm:text-lg mb-8 leading-relaxed">
             Join hundreds of Onitsha traders who have replaced notebooks with
             intelligence. Start free — no credit card needed.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register" className="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-bold px-10 py-4 rounded-xl transition-all text-base shadow-glow-brand">
+            <Link to="/register" className="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 sm:px-10 py-4 rounded-xl transition-all text-base shadow-glow-brand">
               Create Free Account <ArrowRight size={18} />
             </Link>
-            <Link to="/login" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-navy-700 text-white font-semibold px-8 py-4 rounded-xl transition-all text-base">
+            <Link to="/login" className="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-navy-700 text-white font-semibold px-6 sm:px-8 py-4 rounded-xl transition-all text-base">
               Sign in
             </Link>
           </div>
-          <div className="flex items-center justify-center gap-6 mt-8">
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
             {[
               'No credit card required',
               'Set up in 2 minutes',
               'Your data stays private',
             ].map((t) => (
               <div key={t} className="flex items-center gap-1.5">
-                <CheckCircle size={13} className="text-brand-400" />
+                <CheckCircle size={13} className="text-brand-400 shrink-0" />
                 <span className="text-xs text-navy-400">{t}</span>
               </div>
             ))}
@@ -278,9 +278,9 @@ export const LandingPage: React.FC = () => {
 
       {/* ── Footer ───────────────────────────────────────────── */}
       <footer className="border-t border-navy-800 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-brand-500 rounded-md flex items-center justify-center">
+            <div className="w-6 h-6 bg-brand-500 rounded-md flex items-center justify-center shrink-0">
               <Zap size={12} className="text-white" fill="white" />
             </div>
             <span className="text-sm font-bold text-white">MarketMind <span className="text-brand-400">AI</span></span>
@@ -289,7 +289,7 @@ export const LandingPage: React.FC = () => {
             Built for Onitsha, Anambra State · HACK4HOD 2026 · GDG COOU
           </p>
           <div className="flex items-center gap-4">
-            <ShieldCheck size={14} className="text-navy-500" />
+            <ShieldCheck size={14} className="text-navy-500 shrink-0" />
             <span className="text-xs text-navy-500">Secure & Private</span>
           </div>
         </div>

@@ -39,12 +39,13 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-4 sm:p-6">
       {/* Theme toggle top right */}
-      <div className="fixed top-4 right-4">
+      <div className="fixed top-4 right-4 z-10">
         <button
           onClick={toggle}
-          className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-800 transition-colors"
+          className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-800 transition-colors touch-manipulation"
+          aria-label="Toggle theme"
         >
           {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
@@ -52,7 +53,7 @@ export const LoginPage: React.FC = () => {
 
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="flex flex-col items-center mb-10">
+        <div className="flex flex-col items-center mb-8 sm:mb-10">
           <Link to="/" className="flex items-center gap-2.5 mb-2">
             <div className="w-11 h-11 bg-brand-500 rounded-2xl flex items-center justify-center shadow-glow-brand">
               <Zap size={22} className="text-white" fill="white" />
@@ -66,7 +67,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-navy-800 border border-navy-700 rounded-2xl p-7 shadow-card-lg">
+        <div className="bg-navy-800 border border-navy-700 rounded-2xl p-5 sm:p-7 shadow-card-lg">
           <h2 className="text-xl font-bold text-white mb-1">Welcome back</h2>
           <p className="text-navy-400 text-sm mb-6">Sign in to manage your business</p>
 
@@ -91,7 +92,12 @@ export const LoginPage: React.FC = () => {
               required
               autoComplete="current-password"
               rightElement={
-                <button type="button" onClick={() => setShowPass(!showPass)} className="text-navy-400 hover:text-navy-200 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="text-navy-400 hover:text-navy-200 transition-colors touch-manipulation"
+                  aria-label={showPass ? 'Hide password' : 'Show password'}
+                >
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               }

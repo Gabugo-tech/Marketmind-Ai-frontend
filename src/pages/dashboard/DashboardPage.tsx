@@ -78,8 +78,8 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-5 animate-fade-in">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
           <h2 className="text-lg sm:text-xl font-bold text-white">
             {greeting()}, {user?.firstName} 👋
           </h2>
@@ -87,7 +87,7 @@ export const DashboardPage: React.FC = () => {
             {business?.name}
           </p>
         </div>
-        <Button size="sm" icon={<ShoppingCart size={15} />} onClick={() => setShowSaleModal(true)}>
+        <Button size="sm" icon={<ShoppingCart size={15} />} onClick={() => setShowSaleModal(true)} className="shrink-0">
           <span className="hidden sm:inline">Record </span>Sale
         </Button>
       </div>
@@ -104,11 +104,11 @@ export const DashboardPage: React.FC = () => {
       {((stats?.outOfStockCount ?? 0) > 0 || (stats?.criticalStockCount ?? 0) > 0) && (
         <div className="flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
           <AlertTriangle size={16} className="text-red-400 shrink-0" />
-          <p className="text-xs sm:text-sm text-red-300 flex-1">
+          <p className="text-xs sm:text-sm text-red-300 flex-1 min-w-0">
             <span className="font-semibold">{stats!.outOfStockCount} out of stock</span>
             {stats!.criticalStockCount > 0 && `, ${stats!.criticalStockCount} critical`}.
           </p>
-          <Link to="/forecasting"><Button size="xs" variant="danger">View</Button></Link>
+          <Link to="/forecasting" className="shrink-0"><Button size="xs" variant="danger">View</Button></Link>
         </div>
       )}
 
@@ -119,7 +119,8 @@ export const DashboardPage: React.FC = () => {
             <CardTitle>Sales Trend — 30 Days</CardTitle>
             <span className="text-xs text-navy-400 hidden sm:block">Revenue & Profit</span>
           </CardHeader>
-          <div className="h-44 sm:h-52">
+          {/* Responsive chart height */}
+          <div className="h-40 sm:h-52">
             {trend ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trend} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
@@ -135,7 +136,7 @@ export const DashboardPage: React.FC = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                   <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 9 }} tickFormatter={(d) => formatDate(d, 'dd MMM')} interval={6} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 9 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}K`} width={45} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 9 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}K`} width={40} />
                   <Tooltip content={<CustomTooltip />} />
                   <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="url(#revGrad)" strokeWidth={2} name="revenue" />
                   <Area type="monotone" dataKey="profit" stroke="#3b82f6" fill="url(#profGrad)" strokeWidth={2} name="profit" />
@@ -148,11 +149,11 @@ export const DashboardPage: React.FC = () => {
         <Card padding="md">
           <CardHeader>
             <CardTitle>Top Products</CardTitle>
-            <Link to="/analytics" className="text-xs text-brand-400">See all →</Link>
+            <Link to="/analytics" className="text-xs text-brand-400 shrink-0">See all →</Link>
           </CardHeader>
           <div className="space-y-2.5">
             {topProducts?.length > 0 ? topProducts.slice(0, 5).map((p: { productId: string; productName: string; totalRevenue: number; totalQuantity: number }, i: number) => (
-              <div key={p.productId} className="flex items-center gap-2">
+              <div key={p.productId} className="flex items-center gap-2 min-w-0">
                 <div className="w-5 h-5 rounded-full bg-navy-700 flex items-center justify-center text-[10px] font-bold text-navy-300 shrink-0">{i + 1}</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-white truncate">{p.productName}</p>
@@ -174,14 +175,14 @@ export const DashboardPage: React.FC = () => {
         <Card padding="md">
           <CardHeader>
             <CardTitle>Stock Alerts</CardTitle>
-            <Link to="/inventory" className="text-xs text-brand-400">Manage →</Link>
+            <Link to="/inventory" className="text-xs text-brand-400 shrink-0">Manage →</Link>
           </CardHeader>
           {!alertProducts ? <LoadingSpinner className="py-4" /> : alertProducts.length === 0 ? (
             <EmptyState icon={<Package size={18} />} title="All stock levels healthy" />
           ) : (
             <div className="space-y-2">
               {alertProducts.map((p) => (
-                <div key={p.id} className="flex items-center gap-3 p-2.5 bg-navy-700/50 rounded-lg">
+                <div key={p.id} className="flex items-center gap-3 p-2.5 bg-navy-700/50 rounded-lg min-w-0">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-white truncate">{p.name}</p>
                     <p className="text-[10px] text-navy-400">{p.quantity} units left</p>
@@ -198,7 +199,7 @@ export const DashboardPage: React.FC = () => {
         <Card padding="md">
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
-            <Link to="/sales" className="text-xs text-brand-400">View all →</Link>
+            <Link to="/sales" className="text-xs text-brand-400 shrink-0">View all →</Link>
           </CardHeader>
           {!recentSales ? <LoadingSpinner className="py-4" /> : recentSales.length === 0 ? (
             <EmptyState icon={<ShoppingCart size={18} />} title="No transactions yet"
@@ -206,9 +207,9 @@ export const DashboardPage: React.FC = () => {
           ) : (
             <div className="space-y-2">
               {recentSales.map((s: { id: string; referenceNumber: string; soldAt: string; total: number; grossProfit: number }) => (
-                <div key={s.id} className="flex items-center gap-3 p-2.5 bg-navy-700/50 rounded-lg">
+                <div key={s.id} className="flex items-center gap-3 p-2.5 bg-navy-700/50 rounded-lg min-w-0">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-white">{s.referenceNumber}</p>
+                    <p className="text-xs font-medium text-white truncate">{s.referenceNumber}</p>
                     <p className="text-[10px] text-navy-400">{formatDate(s.soldAt, 'dd MMM, hh:mm a')}</p>
                   </div>
                   <div className="text-right shrink-0">

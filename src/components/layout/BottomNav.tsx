@@ -16,6 +16,7 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-navy-900/95 backdrop-blur-xl border-t border-navy-700 safe-area-pb">
+      {/* py-2 gives touch target height; safe-area-pb adds env(safe-area-inset-bottom) below */}
       <div className="flex items-center justify-around px-2 py-2">
         {items.map((item) => {
           const active = location.pathname.startsWith(item.to);
@@ -24,7 +25,7 @@ export const BottomNav: React.FC = () => {
               key={item.to}
               to={item.to}
               className={cn(
-                'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all min-w-0',
+                'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all min-w-0 touch-manipulation',
                 active ? 'text-brand-400' : 'text-navy-500 hover:text-navy-300'
               )}
             >

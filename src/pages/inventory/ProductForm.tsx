@@ -194,7 +194,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess }) 
         />
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Input
           label="Purchase Price (₦)"
           type="number"
@@ -220,7 +220,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess }) 
       </div>
 
       {!isEdit && (
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input label="Opening Stock Quantity" type="number" value={form.quantity} onChange={set('quantity')} min="0" required />
           <Input label="Minimum Stock Level" type="number" value={form.minStockLevel} onChange={set('minStockLevel')} min="0" hint="Alert when stock falls below this" />
         </div>

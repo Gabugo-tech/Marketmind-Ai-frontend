@@ -107,10 +107,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
       {business && (
         <div className="px-4 py-3 border-b border-navy-700">
           <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-navy-700/50">
-            <div className="w-7 h-7 bg-brand-500/20 rounded-lg flex items-center justify-center">
+            <div className="w-7 h-7 bg-brand-500/20 rounded-lg flex items-center justify-center shrink-0">
               <Store size={14} className="text-brand-400" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-white truncate">{business.name}</p>
               <p className="text-[10px] text-navy-400 truncate">{business.location}</p>
             </div>
@@ -125,8 +125,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
 
       {/* User */}
       <div className="px-3 py-4 border-t border-navy-700">
-        <div className="flex items-center gap-3 px-2 py-2 mb-1">
-          <div className="w-8 h-8 bg-navy-600 rounded-full flex items-center justify-center text-xs font-bold text-navy-200">
+        <div className="flex items-center gap-3 px-2 py-2 mb-1 min-w-0">
+          <div className="w-8 h-8 bg-navy-600 rounded-full flex items-center justify-center text-xs font-bold text-navy-200 shrink-0">
             {user?.firstName?.[0]}{user?.lastName?.[0]}
           </div>
           <div className="flex-1 min-w-0">
@@ -136,23 +136,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
         </div>
         <button
           onClick={() => setShowSignoutWarning(true)}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-navy-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-navy-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors touch-manipulation"
         >
-          <LogOut size={16} />
+          <LogOut size={16} className="shrink-0" />
           Sign out
         </button>
       </div>
 
       {/* Signout warning modal */}
       {showSignoutWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSignoutWarning(false)} />
-          <div className="relative bg-navy-800 border border-navy-700 rounded-2xl p-6 w-full max-w-sm shadow-card-lg animate-slide-up">
+          <div className="relative bg-navy-800 border border-navy-700 rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-card-lg animate-slide-up">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-500/15 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-red-500/15 rounded-xl flex items-center justify-center shrink-0">
                 <LogOut size={18} className="text-red-400" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className="text-base font-bold text-white">Sign out?</h3>
                 <p className="text-xs text-navy-400">You'll need to log back in to access your business</p>
               </div>
@@ -160,13 +160,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowSignoutWarning(false)}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-navy-200 bg-navy-700 hover:bg-navy-600 rounded-xl transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-navy-200 bg-navy-700 hover:bg-navy-600 rounded-xl transition-colors touch-manipulation"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogout}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors touch-manipulation"
               >
                 Yes, sign out
               </button>
@@ -180,7 +180,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 bg-navy-900 border-r border-navy-700 h-screen sticky top-0">
+      <aside className="hidden lg:flex flex-col w-60 bg-navy-900 border-r border-navy-700 h-screen sticky top-0 shrink-0">
         {content}
       </aside>
 
@@ -188,7 +188,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
       {mobileOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={onClose} />
-          <aside className="fixed left-0 top-0 bottom-0 z-50 w-72 bg-navy-900 border-r border-navy-700 lg:hidden animate-slide-in">
+          {/* w-[min(18rem,85vw)] ensures drawer never exceeds 85% of viewport width on tiny screens */}
+          <aside className="fixed left-0 top-0 bottom-0 z-50 w-[min(18rem,85vw)] bg-navy-900 border-r border-navy-700 lg:hidden animate-slide-in overflow-y-auto">
             {content}
           </aside>
         </>
@@ -204,23 +205,28 @@ export const TopBar: React.FC<{ onMenuClick: () => void; title: string }> = ({ o
     <header className="sticky top-0 z-30 bg-navy-900/80 backdrop-blur-xl border-b border-navy-700 px-4 lg:px-6 py-3.5 flex items-center gap-3">
       <button
         onClick={onMenuClick}
-        className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors lg:hidden"
+        className="p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors lg:hidden touch-manipulation shrink-0"
+        aria-label="Open menu"
       >
         <Menu size={20} />
       </button>
-      <h1 className="text-base font-semibold text-white flex-1">{title}</h1>
+      <h1 className="text-base font-semibold text-white flex-1 truncate">{title}</h1>
       {/* PWA install button */}
       {isInstallable && (
         <button
           onClick={install}
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-brand-500/15 hover:bg-brand-500/25 text-brand-400 border border-brand-500/20 rounded-lg transition-colors"
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-brand-500/15 hover:bg-brand-500/25 text-brand-400 border border-brand-500/20 rounded-lg transition-colors shrink-0 touch-manipulation"
         >
           <Download size={13} />
           Install App
         </button>
       )}
-      {/* Fix #15: notification bell with unread badge */}
-      <Link to="/notifications" className="relative p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors">
+      {/* Notification bell with unread badge */}
+      <Link
+        to="/notifications"
+        className="relative p-2 rounded-lg text-navy-400 hover:text-white hover:bg-navy-700 transition-colors touch-manipulation shrink-0"
+        aria-label="Notifications"
+      >
         <Bell size={18} />
         {(unreadCount.data ?? 0) > 0 && (
           <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">

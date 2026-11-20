@@ -72,38 +72,41 @@ export const NewPurchaseForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess
 
       {items.length > 0 && (
         <div className="border border-navy-700 rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead><tr className="bg-navy-700/50">
-              <th className="px-4 py-2 text-left text-xs text-navy-400">Product</th>
-              <th className="px-3 py-2 text-center text-xs text-navy-400">Qty</th>
-              <th className="px-3 py-2 text-right text-xs text-navy-400">Unit Cost (₦)</th>
-              <th className="px-3 py-2 text-right text-xs text-navy-400">Total</th>
-              <th className="px-3 py-2" />
-            </tr></thead>
-            <tbody className="divide-y divide-navy-700/50">
-              {items.map((item) => (
-                <tr key={item.product.id}>
-                  <td className="px-4 py-2.5"><p className="text-sm text-white">{item.product.name}</p></td>
-                  <td className="px-3 py-2.5">
-                    <input type="number" min="1" value={item.quantity}
-                      onChange={(e) => updateItem(item.product.id, 'quantity', parseInt(e.target.value) || 1)}
-                      className="w-16 bg-navy-700 border border-navy-600 text-white text-sm text-center rounded-lg px-2 py-1 focus:outline-none focus:border-brand-500" />
-                  </td>
-                  <td className="px-3 py-2.5 text-right">
-                    <input type="number" min="0" value={item.unitCost}
-                      onChange={(e) => updateItem(item.product.id, 'unitCost', parseFloat(e.target.value) || 0)}
-                      className="w-24 bg-navy-700 border border-navy-600 text-white text-sm text-right rounded-lg px-2 py-1 focus:outline-none focus:border-brand-500" />
-                  </td>
-                  <td className="px-3 py-2.5 text-right">
-                    <span className="text-sm font-semibold text-white">{formatCurrency(item.unitCost * item.quantity)}</span>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <button onClick={() => removeItem(item.product.id)} className="p-1 text-navy-500 hover:text-red-400"><Trash2 size={14} /></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* overflow-x-auto prevents table overflow inside modal on narrow screens */}
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[380px]">
+              <thead><tr className="bg-navy-700/50">
+                <th className="px-4 py-2 text-left text-xs text-navy-400">Product</th>
+                <th className="px-3 py-2 text-center text-xs text-navy-400">Qty</th>
+                <th className="px-3 py-2 text-right text-xs text-navy-400">Unit Cost (₦)</th>
+                <th className="px-3 py-2 text-right text-xs text-navy-400">Total</th>
+                <th className="px-3 py-2" />
+              </tr></thead>
+              <tbody className="divide-y divide-navy-700/50">
+                {items.map((item) => (
+                  <tr key={item.product.id}>
+                    <td className="px-4 py-2.5"><p className="text-sm text-white">{item.product.name}</p></td>
+                    <td className="px-3 py-2.5">
+                      <input type="number" min="1" value={item.quantity}
+                        onChange={(e) => updateItem(item.product.id, 'quantity', parseInt(e.target.value) || 1)}
+                        className="w-16 bg-navy-700 border border-navy-600 text-white text-sm text-center rounded-lg px-2 py-1.5 focus:outline-none focus:border-brand-500" />
+                    </td>
+                    <td className="px-3 py-2.5 text-right">
+                      <input type="number" min="0" value={item.unitCost}
+                        onChange={(e) => updateItem(item.product.id, 'unitCost', parseFloat(e.target.value) || 0)}
+                        className="w-24 bg-navy-700 border border-navy-600 text-white text-sm text-right rounded-lg px-2 py-1.5 focus:outline-none focus:border-brand-500" />
+                    </td>
+                    <td className="px-3 py-2.5 text-right">
+                      <span className="text-sm font-semibold text-white whitespace-nowrap">{formatCurrency(item.unitCost * item.quantity)}</span>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <button onClick={() => removeItem(item.product.id)} className="p-1 text-navy-500 hover:text-red-400 touch-manipulation"><Trash2 size={14} /></button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div className="px-4 py-3 bg-navy-700/30 border-t border-navy-700 flex justify-between">
             <span className="text-sm text-navy-300">Total</span>
             <span className="text-sm font-bold text-brand-400">{formatCurrency(total)}</span>

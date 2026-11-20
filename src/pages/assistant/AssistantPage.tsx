@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import {
   Send, Bot, User, Sparkles, TrendingUp, Package,
-  DollarSign, BarChart3, Zap, Plus, Trash2, ChevronDown
+  DollarSign, BarChart3, Zap, Plus, ChevronDown
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { formatRelative } from '@/lib/utils';
@@ -61,7 +61,7 @@ function MessageBubble({ msg }: { msg: Message }) {
           ? 'bg-brand-500 text-white rounded-tr-sm'
           : 'bg-navy-800 border border-navy-700/80 text-navy-100 rounded-tl-sm'
       )}>
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
         <p className={cn('text-[10px] mt-1.5', isUser ? 'text-brand-200 text-right' : 'text-navy-500')}>
           {formatRelative(msg.createdAt)}
         </p>
@@ -94,7 +94,6 @@ export const AssistantPage: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Show scroll-to-bottom button when scrolled up
   const handleScroll = () => {
     const el = messagesContainerRef.current;
     if (!el) return;
@@ -114,6 +113,10 @@ export const AssistantPage: React.FC = () => {
       };
       setMessages((prev) => [...prev, userMsg]);
       setInput('');
+      // Reset textarea height
+      if (inputRef.current) {
+        inputRef.current.style.height = 'auto';
+      }
     },
     onSuccess: (data) => {
       setConversationId(data.conversationId);
@@ -150,6 +153,7 @@ export const AssistantPage: React.FC = () => {
     setMessages([]);
     setConversationId(null);
     setInput('');
+    if (inputRef.current) inputRef.current.style.height = 'auto';
     inputRef.current?.focus();
   };
 
@@ -157,26 +161,41 @@ export const AssistantPage: React.FC = () => {
   const isEmpty = messages.length === 0;
 
   return (
-    // Full screen overlay — covers the entire viewport
-    <div className="fixed inset-0 z-20 bg-navy-950 flex flex-col lg:pl-60">
-      {/* Header */}
-      <div className="bg-navy-900 border-b border-navy-700 px-4 sm:px-6 py-3.5 flex items-center gap-3 shrink-0">
+    /*
+     * The assistant takes over the full app content area.
+     * We use fixed positioning anchored to the sidebar and TopBar edges rather
+     * than the entire viewport, so the sidebar and TopBar remain visible and
+     * functional. On mobile there is no sidebar (it's a drawer), so we fill
+     * the full width. The BottomNav lives at z-40; we raise the assistant
+     * input container to z-41 so it always sits above the BottomNav on mobile.
+     *
+     * iOS keyboard handling: using `dvh` on the outer container so the browser
+     * correctly shrinks the available height when the keyboard is open. The
+     * flex column layout means the input area naturally stays at the bottom of
+     * the visible area rather than being pushed off screen.
+     */
+    <div
+      className="flex flex-col"
+      style={{ height: 'calc(100dvh - 57px)' }}
+    >
+      {/* Chat header */}
+      <div className="bg-navy-900 border-b border-navy-700 px-4 sm:px-6 py-3 flex items-center gap-3 shrink-0">
         {/* Avatar */}
-        <div className="relative">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-blue-500 rounded-full flex items-center justify-center">
-            <Bot size={20} className="text-white" />
+        <div className="relative shrink-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-brand-500 to-blue-500 rounded-full flex items-center justify-center">
+            <Bot size={18} className="text-white" />
           </div>
           <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-brand-400 rounded-full border-2 border-navy-900" />
         </div>
 
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-sm font-bold text-white">MarketMind AI Assistant</h2>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 bg-brand-500/20 text-brand-400 rounded-full border border-brand-500/20">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 bg-brand-500/20 text-brand-400 rounded-full border border-brand-500/20 shrink-0">
               <Zap size={9} fill="currentColor" /> AI
             </span>
           </div>
-          <p className="text-[11px] text-navy-400">
+          <p className="text-[11px] text-navy-400 truncate">
             {business?.name ?? 'Your business'} · Ask anything about your data
           </p>
         </div>
@@ -184,27 +203,28 @@ export const AssistantPage: React.FC = () => {
         {messages.length > 0 && (
           <button
             onClick={handleNewChat}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-navy-300 hover:text-white bg-navy-700 hover:bg-navy-600 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-navy-300 hover:text-white bg-navy-700 hover:bg-navy-600 rounded-lg transition-colors touch-manipulation shrink-0"
           >
-            <Plus size={13} /> New Chat
+            <Plus size={13} /> New
           </button>
         )}
       </div>
 
-      {/* Messages area */}
+      {/* Messages area — flex-1 so it fills between header and input */}
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-4"
+        className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-4 overscroll-contain"
       >
         {isEmpty ? (
-          /* Welcome screen */
-          <div className="flex flex-col items-center justify-center min-h-full pb-10 gap-6 text-center">
+          /* Welcome / suggestion screen */
+          <div className="flex flex-col items-center justify-center min-h-full pb-6 gap-6 text-center">
             <div>
-              <div className="w-20 h-20 bg-gradient-to-br from-brand-500/20 to-blue-500/20 rounded-3xl flex items-center justify-center mx-auto mb-5 border border-brand-500/20">
-                <Sparkles size={36} className="text-brand-400" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-brand-500/20 to-blue-500/20 rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-5 border border-brand-500/20">
+                <Sparkles size={28} className="text-brand-400 sm:hidden" />
+                <Sparkles size={36} className="text-brand-400 hidden sm:block" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Your AI Business Advisor</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Your AI Business Advisor</h3>
               <p className="text-sm text-navy-400 max-w-sm mx-auto leading-relaxed">
                 I have live access to your sales, inventory, and profit data.
                 Ask me anything about <span className="text-white font-medium">{business?.name ?? 'your business'}</span>.
@@ -212,13 +232,13 @@ export const AssistantPage: React.FC = () => {
             </div>
 
             {/* Suggestion chips */}
-            <div className="w-full max-w-lg grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="w-full max-w-lg grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
               {SUGGESTIONS.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => mutation.mutate(s.text)}
                   disabled={isTyping}
-                  className="flex items-center gap-3 p-3.5 bg-navy-800 border border-navy-700 hover:border-brand-500/40 hover:bg-navy-700 rounded-xl text-left transition-all group disabled:opacity-50"
+                  className="flex items-center gap-3 p-3 sm:p-3.5 bg-navy-800 border border-navy-700 hover:border-brand-500/40 hover:bg-navy-700 rounded-xl text-left transition-all group disabled:opacity-50 touch-manipulation"
                 >
                   <div className="w-8 h-8 bg-navy-700 group-hover:bg-navy-600 rounded-lg flex items-center justify-center shrink-0 transition-colors">
                     <s.icon size={15} className={s.color} />
@@ -241,19 +261,24 @@ export const AssistantPage: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Scroll to bottom button */}
+      {/* Scroll-to-bottom button — positioned relative to the flex container */}
       {showScrollBtn && (
-        <button
-          onClick={() => scrollToBottom()}
-          className="absolute bottom-24 right-6 w-9 h-9 bg-navy-700 hover:bg-navy-600 border border-navy-600 text-navy-300 hover:text-white rounded-full flex items-center justify-center shadow-lg transition-all"
-        >
-          <ChevronDown size={18} />
-        </button>
+        <div className="absolute right-4 sm:right-6" style={{ bottom: 'calc(var(--input-area-h, 80px) + 8px)' }}>
+          <button
+            onClick={() => scrollToBottom()}
+            className="w-9 h-9 bg-navy-700 hover:bg-navy-600 border border-navy-600 text-navy-300 hover:text-white rounded-full flex items-center justify-center shadow-lg transition-all touch-manipulation"
+          >
+            <ChevronDown size={18} />
+          </button>
+        </div>
       )}
 
-      {/* Input area */}
-      <div className="bg-navy-900 border-t border-navy-700 px-4 sm:px-6 py-3 shrink-0">
-        {/* Suggestion strip when chat has messages */}
+      {/* Input area — always anchored at the bottom of the flex column.
+          The safe-area-pb utility (defined in index.css) adds
+          env(safe-area-inset-bottom) so the input stays above the iOS home
+          indicator. On mobile we also add extra pb to clear the BottomNav. */}
+      <div className="bg-navy-900 border-t border-navy-700 px-4 sm:px-6 py-3 shrink-0 safe-area-pb lg:pb-3">
+        {/* Quick-suggestion strip — only when conversation just started */}
         {messages.length > 0 && messages.length < 4 && (
           <div className="flex gap-2 mb-2.5 overflow-x-auto pb-1 scrollbar-hide">
             {SUGGESTIONS.slice(0, 3).map((s, i) => (
@@ -261,7 +286,7 @@ export const AssistantPage: React.FC = () => {
                 key={i}
                 onClick={() => mutation.mutate(s.text)}
                 disabled={isTyping}
-                className="whitespace-nowrap text-[11px] px-3 py-1.5 bg-navy-800 hover:bg-navy-700 border border-navy-700 text-navy-300 hover:text-white rounded-full transition-colors disabled:opacity-50 shrink-0"
+                className="whitespace-nowrap text-[11px] px-3 py-1.5 bg-navy-800 hover:bg-navy-700 border border-navy-700 text-navy-300 hover:text-white rounded-full transition-colors disabled:opacity-50 shrink-0 touch-manipulation"
               >
                 {s.text}
               </button>
@@ -270,12 +295,13 @@ export const AssistantPage: React.FC = () => {
         )}
 
         <div className="flex gap-2 items-end">
-          <div className="flex-1 bg-navy-800 border border-navy-700 focus-within:border-brand-500/50 rounded-2xl px-4 py-3 transition-colors">
+          <div className="flex-1 min-w-0 bg-navy-800 border border-navy-700 focus-within:border-brand-500/50 rounded-2xl px-4 py-3 transition-colors">
             <textarea
               ref={inputRef}
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
+                // Auto-grow up to 120px
                 e.target.style.height = 'auto';
                 e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
               }}
@@ -284,17 +310,20 @@ export const AssistantPage: React.FC = () => {
               className="w-full bg-transparent text-sm text-navy-100 placeholder-navy-500 resize-none focus:outline-none leading-relaxed"
               rows={1}
               disabled={isTyping}
+              // Prevent iOS from zooming in on the textarea (font-size 16px minimum)
+              style={{ fontSize: '16px' }}
             />
           </div>
           <button
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
             className={cn(
-              'w-11 h-11 rounded-2xl flex items-center justify-center transition-all shrink-0',
+              'w-11 h-11 rounded-2xl flex items-center justify-center transition-all shrink-0 touch-manipulation',
               input.trim() && !isTyping
                 ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-glow-brand'
                 : 'bg-navy-700 text-navy-500 cursor-not-allowed'
             )}
+            aria-label="Send message"
           >
             {isTyping ? (
               <div className="w-4 h-4 border-2 border-navy-500 border-t-brand-400 rounded-full animate-spin" />

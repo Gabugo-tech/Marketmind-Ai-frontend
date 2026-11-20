@@ -125,48 +125,51 @@ export const NewSaleForm: React.FC<NewSaleFormProps> = ({ onSuccess }) => {
       {/* Cart */}
       {cart.length > 0 && (
         <div className="border border-navy-700 rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-navy-700/50">
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-navy-400">Product</th>
-                <th className="px-3 py-2.5 text-center text-xs font-semibold text-navy-400">Qty</th>
-                <th className="px-3 py-2.5 text-right text-xs font-semibold text-navy-400 hidden sm:table-cell">Unit Price</th>
-                <th className="px-3 py-2.5 text-right text-xs font-semibold text-navy-400">Total</th>
-                <th className="px-3 py-2.5" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-navy-700/50">
-              {cart.map((item) => (
-                <tr key={item.product.id}>
-                  <td className="px-4 py-2.5">
-                    <p className="text-sm font-medium text-white">{item.product.name}</p>
-                    <p className="text-xs text-navy-400">Max: {item.product.quantity}</p>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-1 justify-center">
-                      <button onClick={() => updateQty(item.product.id, item.quantity - 1)}
-                        className="w-6 h-6 rounded bg-navy-700 text-white text-sm hover:bg-navy-600 transition-colors">−</button>
-                      <span className="w-8 text-center text-sm font-medium text-white">{item.quantity}</span>
-                      <button onClick={() => updateQty(item.product.id, Math.min(item.quantity + 1, item.product.quantity))}
-                        className="w-6 h-6 rounded bg-navy-700 text-white text-sm hover:bg-navy-600 transition-colors">+</button>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2.5 text-right hidden sm:table-cell">
-                    <span className="text-sm text-navy-300">{formatCurrency(item.unitPrice)}</span>
-                  </td>
-                  <td className="px-3 py-2.5 text-right">
-                    <span className="text-sm font-semibold text-white">{formatCurrency(item.unitPrice * item.quantity)}</span>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <button onClick={() => updateQty(item.product.id, 0)}
-                      className="p-1 text-navy-500 hover:text-red-400 transition-colors">
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
+          {/* overflow-x-auto prevents the table from breaking the modal on 320–375px screens */}
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[380px]">
+              <thead>
+                <tr className="bg-navy-700/50">
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-navy-400">Product</th>
+                  <th className="px-3 py-2.5 text-center text-xs font-semibold text-navy-400">Qty</th>
+                  <th className="px-3 py-2.5 text-right text-xs font-semibold text-navy-400 hidden sm:table-cell">Unit Price</th>
+                  <th className="px-3 py-2.5 text-right text-xs font-semibold text-navy-400">Total</th>
+                  <th className="px-3 py-2.5" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-navy-700/50">
+                {cart.map((item) => (
+                  <tr key={item.product.id}>
+                    <td className="px-4 py-2.5">
+                      <p className="text-sm font-medium text-white">{item.product.name}</p>
+                      <p className="text-xs text-navy-400">Max: {item.product.quantity}</p>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-1 justify-center">
+                        <button onClick={() => updateQty(item.product.id, item.quantity - 1)}
+                          className="w-6 h-6 rounded bg-navy-700 text-white text-sm hover:bg-navy-600 transition-colors touch-manipulation">−</button>
+                        <span className="w-8 text-center text-sm font-medium text-white">{item.quantity}</span>
+                        <button onClick={() => updateQty(item.product.id, Math.min(item.quantity + 1, item.product.quantity))}
+                          className="w-6 h-6 rounded bg-navy-700 text-white text-sm hover:bg-navy-600 transition-colors touch-manipulation">+</button>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-right hidden sm:table-cell">
+                      <span className="text-sm text-navy-300">{formatCurrency(item.unitPrice)}</span>
+                    </td>
+                    <td className="px-3 py-2.5 text-right">
+                      <span className="text-sm font-semibold text-white">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <button onClick={() => updateQty(item.product.id, 0)}
+                        className="p-1 text-navy-500 hover:text-red-400 transition-colors touch-manipulation">
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -176,10 +179,15 @@ export const NewSaleForm: React.FC<NewSaleFormProps> = ({ onSuccess }) => {
           <div className="flex justify-between text-sm text-navy-300">
             <span>Subtotal</span><span className="font-medium text-white">{formatCurrency(subtotal)}</span>
           </div>
-          <div className="flex justify-between text-sm text-navy-300">
-            <span>Discount</span>
-            <Input type="number" value={discount} onChange={(e) => setDiscount(e.target.value)}
-              min="0" className="w-28 text-right text-sm h-7 py-0" />
+          <div className="flex items-center justify-between text-sm text-navy-300 gap-3">
+            <span className="shrink-0">Discount (₦)</span>
+            <input
+              type="number"
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              min="0"
+              className="w-28 bg-navy-800 border border-navy-600 text-white text-sm text-right rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            />
           </div>
           <div className="flex justify-between text-base font-bold border-t border-navy-600 pt-2">
             <span className="text-white">Total</span>

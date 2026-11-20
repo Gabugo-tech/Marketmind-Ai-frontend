@@ -65,12 +65,12 @@ export const AnalyticsPage: React.FC = () => {
           <span className="text-xs text-navy-400">Last 6 months</span>
         </CardHeader>
         {!monthly ? <LoadingSpinner className="py-10" /> : (
-          <div className="h-56">
+          <div className="h-48 sm:h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthly} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}K`} />
+                <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 10 }} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}K`} width={38} />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: 11, color: '#94a3b8' }} />
                 <Bar dataKey="revenue" fill="#3b82f6" fillOpacity={0.8} name="Revenue" radius={[3, 3, 0, 0]} />
@@ -83,16 +83,17 @@ export const AnalyticsPage: React.FC = () => {
 
       {/* Row: top products + inventory distribution */}
       <div className="grid lg:grid-cols-5 gap-5">
-        {/* Top products */}
+        {/* Top products — horizontal bar on desktop, vertical on mobile to prevent label truncation */}
         <Card padding="md" className="lg:col-span-3">
           <CardHeader><CardTitle>Top 10 Products — Last 30 Days</CardTitle></CardHeader>
           {!topProducts ? <LoadingSpinner className="py-10" /> : (
-            <div className="h-56">
+            <div className="h-48 sm:h-56">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topProducts} layout="vertical" margin={{ top: 5, right: 15, left: 5, bottom: 5 }}>
+                <BarChart data={topProducts} layout="vertical" margin={{ top: 5, right: 15, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                   <XAxis type="number" tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}K`} />
-                  <YAxis type="category" dataKey="productName" width={120} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                  {/* Responsive YAxis width — wider on sm+ */}
+                  <YAxis type="category" dataKey="productName" width={90} tick={{ fill: '#94a3b8', fontSize: 9 }} />
                   <Tooltip content={<ChartTooltip />} />
                   <Bar dataKey="totalRevenue" fill="#10b981" fillOpacity={0.8} name="Revenue" radius={[0, 3, 3, 0]} />
                 </BarChart>
@@ -105,11 +106,20 @@ export const AnalyticsPage: React.FC = () => {
         <Card padding="md" className="lg:col-span-2">
           <CardHeader><CardTitle>Inventory by Category</CardTitle></CardHeader>
           {!distribution ? <LoadingSpinner className="py-10" /> : (
-            <div className="h-56">
+            <div className="h-48 sm:h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={distribution} dataKey="totalValue" nameKey="categoryName" cx="50%" cy="50%" outerRadius={75} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false} fontSize={9}>
+                  <Pie
+                    data={distribution}
+                    dataKey="totalValue"
+                    nameKey="categoryName"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={65}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                    fontSize={9}
+                  >
                     {distribution.map((_: unknown, i: number) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} fillOpacity={0.85} />
                     ))}
@@ -126,12 +136,12 @@ export const AnalyticsPage: React.FC = () => {
       <Card padding="md">
         <CardHeader><CardTitle>Daily Sales Trend — Last 30 Days</CardTitle></CardHeader>
         {!trend30 ? <LoadingSpinner className="py-10" /> : (
-          <div className="h-48">
+          <div className="h-40 sm:h-48">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trend30} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(d) => formatDate(d, 'dd')} interval={4} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}K`} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}K`} width={38} />
                 <Tooltip content={<ChartTooltip />} />
                 <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={false} name="Revenue" />
                 <Line type="monotone" dataKey="profit" stroke="#3b82f6" strokeWidth={2} dot={false} name="Profit" strokeDasharray="4 4" />
@@ -149,10 +159,10 @@ export const AnalyticsPage: React.FC = () => {
             <span className="text-xs text-navy-400">Fewer than 3 units sold in 30 days</span>
           </CardHeader>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[480px]">
               <thead><tr className="border-b border-navy-700">
                 {['Product', 'Units Sold (30d)', 'Current Stock', 'Inventory Value'].map((h) => (
-                  <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-navy-400 uppercase">{h}</th>
+                  <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-navy-400 uppercase whitespace-nowrap">{h}</th>
                 ))}
               </tr></thead>
               <tbody className="divide-y divide-navy-700/50">

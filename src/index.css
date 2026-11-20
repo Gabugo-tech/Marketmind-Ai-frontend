@@ -10,11 +10,18 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* Prevent horizontal overflow at the root level */
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-navy-950 text-navy-100 font-sans antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    /* Prevent horizontal overflow on body */
+    overflow-x: hidden;
+    /* iOS safe-area support */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   /* Light mode overrides */
@@ -87,5 +94,33 @@
 
   .glass {
     @apply bg-navy-800/60 backdrop-blur-xl border border-navy-700/60;
+  }
+
+  /* iOS safe-area padding utilities */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Combined: fixed padding + safe-area for bottom nav (py-2 = 8px + safe-area) */
+  .safe-area-nav-pb {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
+
+  /* Hide scrollbar while keeping scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Ensure flex/grid children can shrink below content size */
+  .min-w-safe {
+    min-width: 0;
   }
 }
