@@ -136,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
               </p>
             </div>
             <Link
-              to="/admin/dashboard"
+              to="/admin/login?access=mm-admin-2026"
               onClick={onClose}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 border',

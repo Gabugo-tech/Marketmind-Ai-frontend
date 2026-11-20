@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useSearchParams } from 'react-router-dom';
 import { Shield, Eye, EyeOff, Lock } from 'lucide-react';
 import { adminApi } from '@/lib/adminApi';
 import { useAdminStore } from '@/store/admin.store';
@@ -7,14 +7,27 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import toast from 'react-hot-toast';
 
+// Secret access token — the page only renders when ?access=<this value> is present.
+// Without it, visitors are silently redirected to the homepage.
+// To access admin login: /admin/login?access=mm-admin-2026
+const ACCESS_TOKEN = 'mm-admin-2026';
+
 export const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, setAuth } = useAdminStore();
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Already logged in → go to dashboard
   if (isAuthenticated) return <Navigate to="/admin/dashboard" replace />;
+
+  // No valid access token → silently redirect to homepage (no error message,
+  // no hint that an admin panel exists)
+  if (searchParams.get('access') !== ACCESS_TOKEN) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

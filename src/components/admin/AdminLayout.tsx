@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, NavLink, useLocation, Navigate } from 'react-router-dom';
+import { Outlet, NavLink, useLocation, Navigate, Link } from 'react-router-dom';
 import { useAdminStore } from '@/store/admin.store';
 import { useAdminThemeStore } from '@/store/adminTheme.store';
 import {
-  LayoutDashboard, Users, Store, LogOut, Menu, X, Shield, Sun, Moon
+  LayoutDashboard, Users, Store, LogOut, Menu, X, Shield, Sun, Moon, ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { to: '/admin/dashboard',   icon: LayoutDashboard, label: 'Overview' },
-  { to: '/admin/users',       icon: Users,           label: 'Users' },
-  { to: '/admin/businesses',  icon: Store,           label: 'Businesses' },
+  { to: '/admin/dashboard',  icon: LayoutDashboard, label: 'Overview' },
+  { to: '/admin/users',      icon: Users,           label: 'Users' },
+  { to: '/admin/businesses', icon: Store,           label: 'Businesses' },
 ];
 
 export const AdminLayout: React.FC = () => {
@@ -19,24 +19,20 @@ export const AdminLayout: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
 
-  // Apply admin theme attribute whenever it changes
   useEffect(() => {
     document.documentElement.setAttribute('data-admin-theme', isDark ? 'dark' : 'light');
-    return () => {
-      // Clean up when navigating away from admin area
-      document.documentElement.removeAttribute('data-admin-theme');
-    };
+    return () => { document.documentElement.removeAttribute('data-admin-theme'); };
   }, [isDark]);
 
   if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
 
   // Theme-aware class helpers
-  const bg       = isDark ? 'bg-slate-950' : 'bg-slate-100';
-  const surface  = isDark ? 'bg-slate-900' : 'bg-white';
-  const border   = isDark ? 'border-red-900/30' : 'border-slate-200';
-  const textPrim = isDark ? 'text-white' : 'text-slate-900';
-  const textMut  = isDark ? 'text-slate-400' : 'text-slate-500';
-  const hover    = isDark ? 'hover:bg-slate-700 hover:text-white' : 'hover:bg-slate-100 hover:text-slate-900';
+  const bg        = isDark ? 'bg-slate-950' : 'bg-slate-100';
+  const surface   = isDark ? 'bg-slate-900' : 'bg-white';
+  const border    = isDark ? 'border-red-900/30' : 'border-slate-200';
+  const textPrim  = isDark ? 'text-white' : 'text-slate-900';
+  const textMut   = isDark ? 'text-slate-400' : 'text-slate-500';
+  const hover     = isDark ? 'hover:bg-slate-700 hover:text-white' : 'hover:bg-slate-100 hover:text-slate-900';
   const activeNav = isDark
     ? 'bg-red-600/20 text-red-400 border border-red-600/30'
     : 'bg-red-50 text-red-600 border border-red-200';
@@ -57,7 +53,7 @@ export const AdminLayout: React.FC = () => {
         </div>
         <button
           onClick={() => setDrawerOpen(false)}
-          className={cn('lg:hidden', textMut, 'hover:text-red-400 transition-colors')}
+          className={cn('lg:hidden', textMut, 'hover:text-red-400 transition-colors touch-manipulation')}
         >
           <X size={20} />
         </button>
@@ -82,6 +78,23 @@ export const AdminLayout: React.FC = () => {
             </NavLink>
           );
         })}
+
+        {/* ── Back to Site ── */}
+        <div className="pt-3">
+          <Link
+            to="/dashboard"
+            onClick={() => setDrawerOpen(false)}
+            className={cn(
+              'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all border border-transparent',
+              isDark
+                ? 'text-slate-500 hover:text-brand-400 hover:bg-brand-500/10 hover:border-brand-500/20'
+                : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200'
+            )}
+          >
+            <ArrowLeft size={16} />
+            Back to Site
+          </Link>
+        </div>
       </nav>
 
       {/* Admin user + sign out */}
@@ -120,14 +133,8 @@ export const AdminLayout: React.FC = () => {
       {/* Mobile drawer */}
       {drawerOpen && (
         <>
-          <div
-            className="fixed inset-0 z-40 bg-black/60 lg:hidden"
-            onClick={() => setDrawerOpen(false)}
-          />
-          <aside className={cn(
-            'fixed left-0 top-0 bottom-0 z-50 w-64 border-r lg:hidden overflow-y-auto',
-            surface, border
-          )}>
+          <div className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={() => setDrawerOpen(false)} />
+          <aside className={cn('fixed left-0 top-0 bottom-0 z-50 w-64 border-r lg:hidden overflow-y-auto', surface, border)}>
             {sidebar}
           </aside>
         </>
@@ -138,15 +145,11 @@ export const AdminLayout: React.FC = () => {
         {/* Top bar */}
         <header className={cn(
           'sticky top-0 z-30 backdrop-blur-xl border-b px-4 lg:px-6 py-3.5 flex items-center gap-3',
-          isDark ? 'bg-slate-900/80' : 'bg-white/80',
-          border
+          isDark ? 'bg-slate-900/80' : 'bg-white/80', border
         )}>
           <button
             onClick={() => setDrawerOpen(true)}
-            className={cn(
-              'p-2 rounded-lg transition-colors lg:hidden touch-manipulation',
-              textMut, hover
-            )}
+            className={cn('p-2 rounded-lg transition-colors lg:hidden touch-manipulation', textMut, hover)}
             aria-label="Open menu"
           >
             <Menu size={20} />
@@ -157,15 +160,25 @@ export const AdminLayout: React.FC = () => {
             <h1 className={cn('text-sm font-semibold truncate', textPrim)}>Admin Panel</h1>
           </div>
 
+          {/* Back to site — top bar shortcut */}
+          <Link
+            to="/dashboard"
+            className={cn(
+              'hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors shrink-0 touch-manipulation',
+              isDark
+                ? 'text-slate-400 hover:text-brand-400 bg-slate-800 hover:bg-brand-500/10 border border-slate-700'
+                : 'text-slate-500 hover:text-emerald-600 bg-slate-100 hover:bg-emerald-50 border border-slate-200'
+            )}
+            title="Go back to the trader dashboard"
+          >
+            <ArrowLeft size={13} /> Back to Site
+          </Link>
+
           {/* Theme toggle */}
           <button
             onClick={toggle}
-            className={cn(
-              'p-2 rounded-lg transition-colors touch-manipulation shrink-0',
-              textMut, hover
-            )}
+            className={cn('p-2 rounded-lg transition-colors touch-manipulation shrink-0', textMut, hover)}
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={isDark ? 'Light mode' : 'Dark mode'}
           >
             {isDark ? <Sun size={16} /> : <Moon size={16} />}
           </button>
