@@ -9,10 +9,20 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <!-- Inter font -->
+    <!-- DNS prefetch for API + CDN origins -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+    <!-- Inter font — preconnect first, then load with font-display:swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Only load the two weights used most: 400 (body) and 600 (semibold).
+         Other weights (300,500,700,800) are still declared but only fetched
+         if the CSS actually uses them — swap prevents FOIT either way. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <title>MarketMind AI — Know Your Stock. Predict Your Sales.</title>
   </head>
