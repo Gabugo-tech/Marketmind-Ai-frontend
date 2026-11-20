@@ -5,10 +5,15 @@ import { useAuthStore } from '@/store/auth.store';
 import { useThemeStore } from '@/store/theme.store';
 import {
   LayoutDashboard, Package, ShoppingCart, TruckIcon, BarChart3,
-  TrendingUp, Bot, Bell, LogOut, Menu, X, Zap, ChevronRight, Store, Sun, Moon, Download
+  TrendingUp, Bot, Bell, LogOut, Menu, X, Zap, ChevronRight, Store,
+  Sun, Moon, Download, Shield
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+
+// ADMIN_EMAIL — only this account sees the Admin Panel entry in the sidebar.
+// The actual admin API is still protected server-side by requireAdmin middleware.
+const ADMIN_EMAIL = 'nnanwubagabriel@gmail.com';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -121,6 +126,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => <NavItem key={item.to} item={item} />)}
+
+        {/* Admin Panel — only visible to the designated admin account */}
+        {user?.email === ADMIN_EMAIL && (
+          <>
+            <div className="pt-3 pb-1">
+              <p className="px-3 text-[10px] font-semibold text-navy-600 uppercase tracking-widest">
+                Administration
+              </p>
+            </div>
+            <Link
+              to="/admin/dashboard"
+              onClick={onClose}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 border',
+                'bg-red-600/10 text-red-400 border-red-600/20 hover:bg-red-600/20'
+              )}
+            >
+              <Shield size={18} className="text-red-400 shrink-0" />
+              <span className="flex-1">Admin Panel</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-red-600/20 text-red-400">
+                ADMIN
+              </span>
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* User */}

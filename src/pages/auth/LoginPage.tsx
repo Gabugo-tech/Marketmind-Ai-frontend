@@ -60,9 +60,9 @@ export const LoginPage: React.FC = () => {
 
       if (status === 429) {
         setErrorType('rate_limited');
-      } else if (message.toLowerCase().includes('suspended')) {
+      } else if (status === 401 && message.toLowerCase().includes('suspended')) {
+        // Must check suspended BEFORE wrong_password — both return 401
         setErrorType('suspended');
-        // Extract reason from message: "Your account has been suspended: <reason>"
         const reasonMatch = message.match(/suspended[:\s]+(.+)/i);
         setSuspendedInfo({ reason: reasonMatch?.[1] });
       } else if (status === 401) {
