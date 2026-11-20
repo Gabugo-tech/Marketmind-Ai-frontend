@@ -161,23 +161,7 @@ export const AssistantPage: React.FC = () => {
   const isEmpty = messages.length === 0;
 
   return (
-    /*
-     * The assistant takes over the full app content area.
-     * We use fixed positioning anchored to the sidebar and TopBar edges rather
-     * than the entire viewport, so the sidebar and TopBar remain visible and
-     * functional. On mobile there is no sidebar (it's a drawer), so we fill
-     * the full width. The BottomNav lives at z-40; we raise the assistant
-     * input container to z-41 so it always sits above the BottomNav on mobile.
-     *
-     * iOS keyboard handling: using `dvh` on the outer container so the browser
-     * correctly shrinks the available height when the keyboard is open. The
-     * flex column layout means the input area naturally stays at the bottom of
-     * the visible area rather than being pushed off screen.
-     */
-    <div
-      className="flex flex-col"
-      style={{ height: 'calc(100dvh - 57px)' }}
-    >
+    <div className="flex flex-col flex-1 min-h-0">
       {/* Chat header */}
       <div className="bg-navy-900 border-b border-navy-700 px-4 sm:px-6 py-3 flex items-center gap-3 shrink-0">
         {/* Avatar */}
@@ -273,11 +257,11 @@ export const AssistantPage: React.FC = () => {
         </div>
       )}
 
-      {/* Input area — always anchored at the bottom of the flex column.
-          The safe-area-pb utility (defined in index.css) adds
-          env(safe-area-inset-bottom) so the input stays above the iOS home
-          indicator. On mobile we also add extra pb to clear the BottomNav. */}
-      <div className="bg-navy-900 border-t border-navy-700 px-4 sm:px-6 py-3 shrink-0 safe-area-pb lg:pb-3">
+      {/* Input area — shrink-0 so it never gets squished by the messages area.
+          pb-20 on mobile clears the BottomNav (≈56px) + a little breathing room.
+          safe-area-pb adds env(safe-area-inset-bottom) for the iOS home bar.
+          lg:pb-3 resets padding on desktop where there's no BottomNav. */}
+      <div className="bg-navy-900 border-t border-navy-700 px-4 sm:px-6 py-3 pb-20 lg:pb-3 shrink-0 safe-area-pb">
         {/* Quick-suggestion strip — only when conversation just started */}
         {messages.length > 0 && messages.length < 4 && (
           <div className="flex gap-2 mb-2.5 overflow-x-auto pb-1 scrollbar-hide">
