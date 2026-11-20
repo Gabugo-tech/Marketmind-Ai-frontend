@@ -124,3 +124,37 @@
     min-width: 0;
   }
 }
+
+/* ── Admin panel light/dark theme ─────────────────────────────────────────── */
+/* The admin panel uses data-admin-theme="dark|light" so it never conflicts    */
+/* with the trader app's .dark class.                                          */
+
+/* Admin dark (default) — no extra overrides needed; uses slate-* classes as-is */
+
+/* Admin light mode */
+[data-admin-theme="light"] .admin-bg-primary     { background-color: #f8fafc; }
+[data-admin-theme="light"] .admin-bg-surface     { background-color: #ffffff; }
+[data-admin-theme="light"] .admin-bg-elevated    { background-color: #f1f5f9; }
+[data-admin-theme="light"] .admin-border         { border-color: #e2e8f0; }
+[data-admin-theme="light"] .admin-text-primary   { color: #0f172a; }
+[data-admin-theme="light"] .admin-text-secondary { color: #475569; }
+[data-admin-theme="light"] .admin-text-muted     { color: #94a3b8; }
+
+/* Use CSS variables so AdminLayout can switch without duplicating classes */
+:root {
+  --admin-bg:       #020617;   /* slate-950 */
+  --admin-surface:  #0f172a;   /* slate-900 */
+  --admin-elevated: #1e293b;   /* slate-800 */
+  --admin-border:   #1e293b;   /* slate-800/40 approx */
+  --admin-fg:       #f1f5f9;   /* slate-100 */
+  --admin-muted:    #64748b;   /* slate-500 */
+}
+
+[data-admin-theme="light"] {
+  --admin-bg:       #f8fafc;   /* slate-50 */
+  --admin-surface:  #ffffff;
+  --admin-elevated: #f1f5f9;   /* slate-100 */
+  --admin-border:   #e2e8f0;   /* slate-200 */
+  --admin-fg:       #0f172a;   /* slate-950 */
+  --admin-muted:    #64748b;
+}
