@@ -142,11 +142,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
           Sign out
         </button>
       </div>
+    </div>
+  );
 
-      {/* Signout warning modal */}
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex flex-col w-60 bg-navy-900 border-r border-navy-700 h-screen sticky top-0 shrink-0">
+        {content}
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={onClose} />
+          {/* w-[min(18rem,85vw)] ensures drawer never exceeds 85% of viewport width on tiny screens */}
+          <aside className="fixed left-0 top-0 bottom-0 z-50 w-[min(18rem,85vw)] bg-navy-900 border-r border-navy-700 lg:hidden animate-slide-in overflow-y-auto">
+            {content}
+          </aside>
+        </>
+      )}
+
+      {/* Sign-out confirmation — rendered ONCE outside both sidebar instances
+          so it never duplicates and always sits above everything at z-[60] */}
       {showSignoutWarning && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSignoutWarning(false)} />
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowSignoutWarning(false)}
+          />
           <div className="relative bg-navy-800 border border-navy-700 rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-card-lg animate-slide-up">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-500/15 rounded-xl flex items-center justify-center shrink-0">
@@ -173,26 +197,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
             </div>
           </div>
         </div>
-      )}
-    </div>
-  );
-
-  return (
-    <>
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 bg-navy-900 border-r border-navy-700 h-screen sticky top-0 shrink-0">
-        {content}
-      </aside>
-
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <>
-          <div className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={onClose} />
-          {/* w-[min(18rem,85vw)] ensures drawer never exceeds 85% of viewport width on tiny screens */}
-          <aside className="fixed left-0 top-0 bottom-0 z-50 w-[min(18rem,85vw)] bg-navy-900 border-r border-navy-700 lg:hidden animate-slide-in overflow-y-auto">
-            {content}
-          </aside>
-        </>
       )}
     </>
   );
